@@ -1,0 +1,69 @@
+model Organization {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  employees User[]
+  branches  Branch[]
+
+  verificationTypes VerificationType[]
+
+  formApiKey String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Branch {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  users User[] @relation("UserBranches")
+
+  name String
+  code String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  branches Branch[] @relation("UserBranches")
+
+  // Basic User Info
+  role       Role
+  firstName  String
+  lastName   String
+  bloodGroup String?
+  document   String?
+  phone      String?
+  dob        DateTime?
+  address    String?
+  email      String    @unique
+  password   String
+
+  deleted Boolean @default(false)
+
+  // Online Status
+  working Boolean @default(false)
+
+  //Supervisor Mapping
+  supervisorId Int?
+  supervisor   User?  @relation("employeeSupervisor", fields: [supervisorId], references: [id])
+  reportees    User[] @relation("employeeSupervisor")
+
+  //For GPS Functionalities
+  locationId Int          @unique
+  location   Coordinates  @relation(fields: [locationId], references: [id])
+  startId    Int?
+  start      Coordinates? @relation("verificationStart", fields: [startId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

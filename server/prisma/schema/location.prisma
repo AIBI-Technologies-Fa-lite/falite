@@ -1,0 +1,10 @@
+model Coordinates {
+  id        Int   @id @default(autoincrement())
+  latitude  Float
+  longitude Float
+
+  login     User[]
+  start     User[]   @relation("verificationStart")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

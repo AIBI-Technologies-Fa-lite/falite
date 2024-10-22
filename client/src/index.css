@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Montreal";
+  src: url("./fonts/Montreal-Regular.otf") fromat("otf");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Montreal";
+  src: url("./fonts/Montreal-Bold.otf") fromat("otf");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@keyframes slide-down {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-in-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-in-out forwards;
+}
