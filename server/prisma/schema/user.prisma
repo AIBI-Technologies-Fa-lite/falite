@@ -46,12 +46,14 @@ model User {
   dob        DateTime?
   address    String?
   email      String    @unique
+  pincode    Pincode[]
   password   String
 
   deleted Boolean @default(false)
 
+  documents Document[]
   // Online Status
-  working Boolean @default(false)
+  working   Boolean    @default(false)
 
   //Supervisor Mapping
   supervisorId Int?
@@ -64,6 +66,7 @@ model User {
   startId    Int?
   start      Coordinates? @relation("verificationStart", fields: [startId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  CommonData CommonData[]
 }

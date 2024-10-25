@@ -1,10 +1,68 @@
 model VerificationType {
-  id             Int          @id @default(autoincrement())
+  id             Int            @id @default(autoincrement())
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization   @relation(fields: [organizationId], references: [id])
   name           String
   formId         String
-  deleted        Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  deleted        Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  Verification   Verification[]
+}
+
+model Verification {
+  id Int @id @default(autoincrement())
+
+  verificationTypeId Int
+  verificationType   VerificationType @relation(fields: [verificationTypeId], references: [id])
+
+  pincodeId Int
+  pincode   Pincode @relation(fields: [pincodeId], references: [id])
+  address   String
+
+  caseId Int
+  case   CommonData @relation(fields: [caseId], references: [id])
+
+  creRemarks String?
+  feRemarks  String?
+  distance   Float?
+
+  destinationId Int?
+  destination   Coordinates? @relation(fields: [destinationId], references: [id])
+
+  documents Document[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommonData {
+  id               Int      @id @default(autoincrement())
+  applicantName    String
+  businessName     String?
+  coApplicatntName String?
+  caseNumber       String
+  status           Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  employeeId Int
+  employee   User @relation(fields: [employeeId], references: [id])
+
+  verifications Verification[]
+}
+
+model Document {
+  id             Int          @id @default(autoincrement())
+  verificationId Int
+  verification   Verification @relation(fields: [verificationId], references: [id])
+  employeeId     Int
+  employee       User         @relation(fields: [employeeId], references: [id])
+}
+
+model Pincode {
+  id            Int            @id @default(autoincrement())
+  zip           Int            @unique
+  users         User[]
+  verifications Verification[]
 }

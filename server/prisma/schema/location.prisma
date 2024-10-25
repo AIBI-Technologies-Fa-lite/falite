@@ -3,8 +3,10 @@ model Coordinates {
   latitude  Float
   longitude Float
 
-  login     User[]
-  start     User[]   @relation("verificationStart")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  login User[]
+  start User[] @relation("verificationStart")
+
+  verifications Verification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
