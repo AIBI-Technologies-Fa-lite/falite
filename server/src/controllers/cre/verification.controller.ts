@@ -119,7 +119,8 @@ export const getCases = async (req: Request, res: Response) => {
         where: whereClause,
         orderBy: { createdAt: order },
         skip: skipAmount,
-        take: parseInt(limit)
+        take: parseInt(limit),
+        include: { employee: { select: { firstName: true, lastName: true } } }
       }),
       prisma.commonData.count({
         where: whereClause
