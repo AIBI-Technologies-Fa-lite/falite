@@ -205,7 +205,7 @@ const AddUsers = () => {
           <input
             type="file"
             accept="img"
-            {...register("document", { required: true })}
+            {...register("document")}
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0) {
                 setSelectedFile(e.target.files[0]);
