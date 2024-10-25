@@ -34,7 +34,7 @@ const AddVT = () => {
           />
         </div>
         <div className="flex flex-col col-span-1 gap-2">
-          <label>Response Form Id {errors.formId ? <span className="text-red-500">*</span> : null}</label>
+          <label>Response Form ID {errors.formId ? <span className="text-red-500">*</span> : null}</label>
           <input
             type="text"
             {...register("formId", { required: true })}
