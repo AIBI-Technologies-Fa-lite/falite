@@ -7,7 +7,7 @@ import authRouter from "./auth.routes";
 import branchRouter from "./branch.routes";
 import userRouter from "./user.routes";
 import vtRouter from "./verificationType.routes";
-
+import verificationRouter from "./verification.routes";
 const v1Router = Router();
 
 v1Router.use("/super", superRouter);
@@ -18,5 +18,5 @@ v1Router.use(verifyJWT as any);
 v1Router.use("/branch", branchRouter);
 v1Router.use("/user", userRouter);
 v1Router.use("/vt", vtRouter);
-
+v1Router.use("/verification", verificationRouter);
 export default v1Router;

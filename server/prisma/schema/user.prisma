@@ -46,7 +46,7 @@ model User {
   dob        DateTime?
   address    String?
   email      String    @unique
-  pincode    Pincode[]
+  pincodes   Int[]
   password   String
 
   deleted Boolean @default(false)
@@ -59,6 +59,8 @@ model User {
   supervisorId Int?
   supervisor   User?  @relation("employeeSupervisor", fields: [supervisorId], references: [id])
   reportees    User[] @relation("employeeSupervisor")
+
+  verifications Verification[]
 
   //For GPS Functionalities
   locationId Int          @unique

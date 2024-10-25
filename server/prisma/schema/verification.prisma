@@ -16,9 +16,8 @@ model Verification {
   verificationTypeId Int
   verificationType   VerificationType @relation(fields: [verificationTypeId], references: [id])
 
-  pincodeId Int
-  pincode   Pincode @relation(fields: [pincodeId], references: [id])
-  address   String
+  pincode Int
+  address String
 
   caseId Int
   case   CommonData @relation(fields: [caseId], references: [id])
@@ -29,6 +28,9 @@ model Verification {
 
   destinationId Int?
   destination   Coordinates? @relation(fields: [destinationId], references: [id])
+
+  of_id Int
+  of    User @relation(fields: [of_id], references: [id])
 
   documents Document[]
 
@@ -60,11 +62,4 @@ model Document {
   verification   Verification @relation(fields: [verificationId], references: [id])
   employeeId     Int
   employee       User         @relation(fields: [employeeId], references: [id])
-}
-
-model Pincode {
-  id            Int            @id @default(autoincrement())
-  zip           Int            @unique
-  users         User[]
-  verifications Verification[]
 }
