@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import LoginGuard from "./LoginGuard";
+import RoleGuard from "./RoleGuard";
 
 import Layout from "src/layouts/Layout";
 
@@ -13,6 +14,7 @@ import AddBranch from "@pages/Admin/AddBranch";
 import ViewBranches from "@pages/Admin/ViewBranches";
 import AddVT from "@pages/Admin/AddVT";
 import ViewVT from "@pages/Admin/ViewVT";
+import { Role } from "@constants/enum";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -24,48 +26,52 @@ const router = createBrowserRouter([
         children: [{ path: "/", element: <HomeRouter /> }]
       },
       {
-        path: "/user",
-        element: <Layout />,
+        path: "/",
+        element: <RoleGuard allowedRoles={[Role.ADMIN]} children={<Layout />} />,
         children: [
-          {
-            path: "/user/add",
-            element: <AddUsers />
-          },
           {
             path: "/user",
-            element: <ViewUsers />
+
+            children: [
+              {
+                path: "/user/add",
+                element: <AddUsers />
+              },
+              {
+                path: "/user",
+                element: <ViewUsers />
+              },
+              {
+                path: "/user/:id",
+                element: <ViewUser />
+              }
+            ]
           },
-          {
-            path: "/user/:id",
-            element: <ViewUser />
-          }
-        ]
-      },
-      {
-        path: "/branch",
-        element: <Layout />,
-        children: [
           {
             path: "/branch",
-            element: <ViewBranches />
+            children: [
+              {
+                path: "/branch",
+                element: <ViewBranches />
+              },
+              {
+                path: "/branch/add",
+                element: <AddBranch />
+              }
+            ]
           },
-          {
-            path: "/branch/add",
-            element: <AddBranch />
-          }
-        ]
-      },
-      {
-        path: "/vt",
-        element: <Layout />,
-        children: [
           {
             path: "/vt",
-            element: <ViewVT />
-          },
-          {
-            path: "/vt/add",
-            element: <AddVT />
+            children: [
+              {
+                path: "/vt",
+                element: <ViewVT />
+              },
+              {
+                path: "/vt/add",
+                element: <AddVT />
+              }
+            ]
           }
         ]
       }
