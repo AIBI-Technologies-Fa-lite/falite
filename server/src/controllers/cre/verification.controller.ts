@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { apiResponse, CustomRequest } from "../../utils/response";
 import { CreateCase, CreateVerification } from "../../dto";
 import prisma from "../../db";
-import { Status } from "@prisma/client";
+import { Role, Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 export const createCase = async (req: Request, res: Response) => {
@@ -70,6 +70,72 @@ export const createVerification = async (req: Request, res: Response) => {
     apiResponse.success(res, { verification: transaction });
   } catch (err) {
     console.error("Transaction failed: ", err);
+    apiResponse.error(res);
+  }
+};
+
+export const getCases = async (req: Request, res: Response) => {
+  const {
+    page = "1",
+    limit = "10",
+    search = "",
+    searchColumn = "",
+    order = "desc"
+  } = req.query as {
+    page?: string;
+    limit?: string;
+    search?: string;
+    searchColumn?: "name" | "branchCode";
+    order?: "asc" | "desc";
+  };
+
+  const user = (req as CustomRequest).user;
+  let whereClause: any = {};
+
+  // Determine the filtering based on the user's role
+  if (user.role === Role.CRE) {
+    // If the user is a CRE, filter cases by employeeId
+    whereClause.employeeId = user.id;
+  } else {
+    // Extract branch IDs from user.branches
+    const userBranchIds = user.branches.map((branch: { id: number }) => branch.id);
+    // If not a CRE, filter cases by overlapping branches between the employee and user
+    whereClause.employee = {
+      branches: {
+        some: {
+          id: {
+            in: userBranchIds
+          }
+        }
+      }
+    };
+  }
+
+  const skipAmount = (parseInt(page) - 1) * parseInt(limit);
+
+  try {
+    const [cases, totalCases] = await prisma.$transaction([
+      prisma.commonData.findMany({
+        where: whereClause,
+        orderBy: { createdAt: order },
+        skip: skipAmount,
+        take: parseInt(limit)
+      }),
+      prisma.commonData.count({
+        where: whereClause
+      })
+    ]);
+
+    if (!cases || cases.length === 0) {
+      apiResponse.success(res, "Not Found");
+      return;
+    }
+
+    const pages = Math.ceil(totalCases / parseInt(limit));
+
+    apiResponse.success(res, { cases }, { pages });
+  } catch (err) {
+    console.error(err);
     apiResponse.error(res);
   }
 };

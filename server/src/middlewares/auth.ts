@@ -34,7 +34,8 @@ export const verifyJWT = async (req: Request, res: Response, next: NextFunction)
         id: true,
         organizationId: true,
         firstName: true,
-        role: true
+        role: true,
+        branches: true
       }
     });
 
