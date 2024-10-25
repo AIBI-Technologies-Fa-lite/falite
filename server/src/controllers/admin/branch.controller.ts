@@ -53,7 +53,7 @@ export const getBranches = async (req: Request, res: Response) => {
     page?: string;
     limit?: string;
     search?: string;
-    searchColumn?: "branchName" | "branchCode";
+    searchColumn?: "name" | "branchCode";
     order?: "asc" | "desc";
   };
 
@@ -62,12 +62,12 @@ export const getBranches = async (req: Request, res: Response) => {
     organizationId: user.organizationId
   };
 
-  if (searchColumn === "branchName") {
-    whereClause = { ...whereClause, name: { contains: search } };
+  if (searchColumn === "name") {
+    whereClause = { ...whereClause, name: { contains: search, mode: "insensitive" } };
   } else {
     whereClause = {
       ...whereClause,
-      code: { contains: search }
+      code: { contains: search, mode: "insensitive" }
     };
   }
 
