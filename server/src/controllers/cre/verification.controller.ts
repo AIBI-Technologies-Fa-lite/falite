@@ -54,7 +54,8 @@ export const createVerification = async (req: Request, res: Response) => {
       });
 
       // Step 2: Upload files and create Document records
-
+      // To Do
+      // Step 3: Update Case Status to PENDING
       await tx.commonData.update({
         where: {
           id: caseId
