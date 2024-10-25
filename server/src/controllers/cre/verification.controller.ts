@@ -21,9 +21,7 @@ export const createCase = async (req: Request, res: Response) => {
 };
 
 export const createVerification = async (req: Request, res: Response) => {
-  const files = req.files as Express.Multer.File[];
   const { verificationData, caseId } = req.body as { verificationData: CreateVerification; caseId: number };
-  const user = (req as CustomRequest).user;
 
   try {
     const transaction = await prisma.$transaction(async (tx) => {
