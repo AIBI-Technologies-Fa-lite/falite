@@ -19,7 +19,7 @@ interface Field {
   required?: boolean;
 }
 
-const AddCases = () => {
+const AddCase = () => {
   const [visibleFields, setVisibleFields] = useState<(keyof CaseFormData)[]>([]);
   const navigate = useNavigate();
 
@@ -118,4 +118,4 @@ const AddCases = () => {
   );
 };
 
-export default AddCases;
+export default AddCase;

@@ -14,6 +14,8 @@ import AddBranch from "@pages/Admin/AddBranch";
 import ViewBranches from "@pages/Admin/ViewBranches";
 import AddVT from "@pages/Admin/AddVT";
 import ViewVT from "@pages/Admin/ViewVT";
+
+import AddCase from "@pages/Cre/AddCase";
 import { Role } from "@constants/enum";
 
 const adminRoutes = {
@@ -68,7 +70,18 @@ const adminRoutes = {
 };
 const creRoutes = {
   path: "/",
-  element: <RoleGuard allowedRoles={[Role.CRE]} children={<Layout />} />
+  element: <RoleGuard allowedRoles={[Role.CRE]} children={<Layout />} />,
+  children: [
+    {
+      path: "/verification",
+      children: [
+        {
+          path: "/verification/case/add",
+          element: <ViewVT />
+        }
+      ]
+    }
+  ]
 };
 
 const router = createBrowserRouter([
@@ -81,7 +94,8 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [{ path: "/", element: <HomeRouter /> }]
       },
-      adminRoutes
+      adminRoutes,
+      creRoutes
     ]
   },
   {
