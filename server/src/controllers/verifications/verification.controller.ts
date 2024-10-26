@@ -1,15 +1,16 @@
 import { Request, Response } from "express";
 import { apiResponse, CustomRequest } from "../../utils/response";
-import { CreateCase, CreateVerification } from "../../dto";
+import { CreateVerification } from "../../dto";
+import { bucket } from "../../config";
 import prisma from "../../db";
-import { Role, Status } from "@prisma/client";
+import { Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 
-
 export const createVerification = async (req: Request, res: Response) => {
   const { verificationData, caseId } = req.body as { verificationData: CreateVerification; caseId: number };
-
+  const files = req.files as Express.Multer.File[];
+  const user = (req as CustomRequest).user;
   try {
     const transaction = await prisma.$transaction(async (tx) => {
       // Step 1: Create Verification record
@@ -41,7 +42,35 @@ export const createVerification = async (req: Request, res: Response) => {
       });
 
       // Step 2: Upload files and create Document records
-      // To Do
+      for (const file of files) {
+        const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+        const blob = bucket.file(fileName);
+
+        const blobStream = blob.createWriteStream({
+          resumable: false
+        });
+
+        await new Promise<void>((resolve, reject) => {
+          blobStream.on("finish", resolve).on("error", reject).end(file.buffer);
+        });
+
+        const publicUrl = `${fileName}`;
+        await tx.document.create({
+          data: {
+            verification: {
+              connect: {
+                id: verification.id
+              }
+            },
+            employee: {
+              connect: {
+                id: user.id
+              }
+            },
+            name: publicUrl
+          }
+        });
+      }
       // Step 3: Update Case Status to PENDING
       await tx.commonData.update({
         where: {
@@ -61,106 +90,18 @@ export const createVerification = async (req: Request, res: Response) => {
   }
 };
 
-export const getCases = async (req: Request, res: Response) => {
-  const {
-    page = "1",
-    limit = "10",
-    search = "",
-    searchColumn = "",
-    order = "desc"
-  } = req.query as {
-    page?: string;
-    limit?: string;
-    search?: string;
-    searchColumn?: "name" | "branchCode";
-    order?: "asc" | "desc";
-  };
-
-  const user = (req as CustomRequest).user;
-  let whereClause: any = {};
-
-  // Determine the filtering based on the user's role
-  if (user.role === Role.CRE) {
-    // If the user is a CRE, filter cases by employeeId
-    whereClause.employeeId = user.id;
-  } else {
-    // Extract branch IDs from user.branches
-    const userBranchIds = user.branches.map((branch: { id: number }) => branch.id);
-    // If not a CRE, filter cases by overlapping branches between the employee and user
-    whereClause.employee = {
-      branches: {
-        some: {
-          id: {
-            in: userBranchIds
-          }
-        }
-      }
-    };
-  }
-
-  const skipAmount = (parseInt(page) - 1) * parseInt(limit);
-
+export const ofResponse = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { reject = false, remarks = null }: { reject?: boolean; remarks?: string | null } = req.body;
   try {
-    const [cases, totalCases] = await prisma.$transaction([
-      prisma.commonData.findMany({
-        where: whereClause,
-        orderBy: { createdAt: order },
-        skip: skipAmount,
-        take: parseInt(limit),
-        include: { employee: { select: { firstName: true, lastName: true } } }
-      }),
-      prisma.commonData.count({
-        where: whereClause
-      })
-    ]);
-
-    if (!cases || cases.length === 0) {
-      apiResponse.success(res, "Not Found");
-      return;
+    if (reject) {
+      await prisma.verification.update({ where: { id: parseInt(id) }, data: { status: Status.REASSIGN, feRemarks: remarks } });
+      apiResponse.success(res, {});
+    } else {
+      await prisma.verification.update({ where: { id: parseInt(id) }, data: { status: Status.ONGOING } });
     }
-
-    const pages = Math.ceil(totalCases / parseInt(limit));
-
-    apiResponse.success(res, { cases }, { pages });
   } catch (err) {
-    console.error(err);
+    console.log(err);
     apiResponse.error(res);
   }
 };
-export const getCaseById = async (req: Request, res: Response) => {
-  const { id } = req.params as { id: string };
-
-  try {
-    const caseId: number = parseInt(id);
-    const caseData = await prisma.commonData.findUnique({
-      where: { id: caseId },
-      include: {
-        verifications: {
-          include: {
-            verificationType: true,
-            of: {
-              select: {
-                firstName: true,
-                lastName: true
-              }
-            }
-          }
-        },
-        employee: {
-          select: {
-            firstName: true
-          }
-        }
-      }
-    });
-    if (!caseData) {
-      apiResponse.success(res, "Case Not Found");
-      return;
-    }
-    apiResponse.success(res, { case: caseData });
-  } catch (err) {
-    apiResponse.error(res);
-  }
-};
-
-export const getAllVerificationTypes = async (req: Request, res: Response) => {};

@@ -62,6 +62,8 @@ model User {
 
   verifications Verification[]
 
+  notifications Notification[]
+
   //For GPS Functionalities
   locationId Int          @unique
   location   Coordinates  @relation(fields: [locationId], references: [id])

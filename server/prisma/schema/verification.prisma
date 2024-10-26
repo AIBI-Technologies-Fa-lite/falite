@@ -59,6 +59,7 @@ model CommonData {
 
 model Document {
   id             Int          @id @default(autoincrement())
+  name           String
   verificationId Int
   verification   Verification @relation(fields: [verificationId], references: [id])
   employeeId     Int
