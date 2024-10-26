@@ -3,10 +3,10 @@ import { apiResponse, CustomRequest } from "../../utils/response";
 import { CreateVerification } from "../../dto";
 import { bucket } from "../../config";
 import prisma from "../../db";
-import { Status } from "@prisma/client";
+import { NotificationType, Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
-
+import { sendNotification } from "../../utils/notification";
 export const createVerification = async (req: Request, res: Response) => {
   const { verificationData, caseId } = req.body as { verificationData: CreateVerification; caseId: number };
   const files = req.files as Express.Multer.File[];
@@ -80,6 +80,7 @@ export const createVerification = async (req: Request, res: Response) => {
           status: Status.PENDING
         }
       });
+      await sendNotification("New Verification Assigned", verificationData.of_id, NotificationType.VERIFICATION, verification.id);
       return verification;
     });
 
@@ -95,7 +96,13 @@ export const ofResponse = async (req: Request, res: Response) => {
   const { reject = false, remarks = null }: { reject?: boolean; remarks?: string | null } = req.body;
   try {
     if (reject) {
-      await prisma.verification.update({ where: { id: parseInt(id) }, data: { status: Status.REASSIGN, feRemarks: remarks } });
+      const foundVerification = await prisma.verification.update({
+        where: { id: parseInt(id) },
+        data: { status: Status.REASSIGN, feRemarks: remarks },
+        include: { case: { select: { employeeId: true } } }
+      });
+
+      await sendNotification("Verification Rejected", foundVerification.case.employeeId, NotificationType.VERIFICATION, foundVerification.id);
       apiResponse.success(res, {});
     } else {
       await prisma.verification.update({ where: { id: parseInt(id) }, data: { status: Status.ONGOING } });
