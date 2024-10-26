@@ -41,20 +41,20 @@ model Verification {
 }
 
 model CommonData {
-  id               Int      @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   clientName       String
   applicantName    String
   businessName     String?
   coApplicatntName String?
   caseNumber       String
   status           Status
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   product          String
   employeeId       Int
-  employee         User     @relation(fields: [employeeId], references: [id])
-
-  verifications Verification[]
+  employee         User           @relation(fields: [employeeId], references: [id])
+  final            Int            @default(0)
+  verifications    Verification[]
 }
 
 model Document {

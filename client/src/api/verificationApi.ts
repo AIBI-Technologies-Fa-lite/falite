@@ -20,14 +20,16 @@ const verificationApi = authApiSlice.injectEndpoints({
       query: ({ id }) => ({
         url: `/verification/case/${id}`,
         method: "GET"
-      })
+      }),
+      providesTags: ["verifications"]
     }),
     createVerification: builder.mutation({
-      query: ({ verificationData, caseId }) => ({
+      query: (formData) => ({
         url: "/verification",
         method: "POST",
-        body: { verificationData, caseId }
-      })
+        body: formData
+      }),
+      invalidatesTags: ["verifications"]
     })
   })
 });

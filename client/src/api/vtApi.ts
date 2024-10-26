@@ -23,6 +23,12 @@ const vtApi = authApiSlice.injectEndpoints({
       }),
       providesTags: ["vt"]
     }),
+    getAllVt: builder.query({
+      query: () => ({
+        url: `/vt/all`,
+        method: "GET"
+      })
+    }),
     deleteVT: builder.mutation({
       query: (id: string) => ({
         url: `/vt/${id}`,
@@ -33,4 +39,4 @@ const vtApi = authApiSlice.injectEndpoints({
   })
 });
 
-export const { useCreateVTMutation, useDeleteVTMutation, useGetVTQuery } = vtApi;
+export const { useCreateVTMutation, useDeleteVTMutation, useGetVTQuery, useGetAllVtQuery } = vtApi;

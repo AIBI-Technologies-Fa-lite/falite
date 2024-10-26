@@ -88,3 +88,16 @@ export const deleteVerificationType = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const getAllVerificaitonTypes = async (req: Request, res: Response) => {
+  const user = (req as CustomRequest).user;
+
+  try {
+    const verificationTypes = await prisma.verificationType.findMany({
+      where: { organizationId: user.organizationId }
+    });
+    apiResponse.success(res, { verificationTypes });
+  } catch (err) {
+    console.log(err);
+    apiResponse.error(res);
+  }
+};

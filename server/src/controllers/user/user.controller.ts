@@ -203,11 +203,11 @@ export const getEmployeeByRole = async (req: Request, res: Response) => {
 
     // Check if employees with the role exist
     if (employees.length === 0) {
-      return apiResponse.fail(res, "No employees found with this role");
+      apiResponse.fail(res, "No employees found with this role");
     }
 
     // Send success response with found employees
-    apiResponse.success(res, "Employees retrieved successfully", employees);
+    apiResponse.success(res, { employees });
   } catch (err) {
     console.error("Error retrieving employees by role:", err); // Log error for debugging
     apiResponse.error(res, "Failed to retrieve employees");

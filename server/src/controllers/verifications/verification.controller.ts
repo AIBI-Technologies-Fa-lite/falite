@@ -8,8 +8,9 @@ import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import { sendNotification } from "../../utils/notification";
 export const createVerification = async (req: Request, res: Response) => {
-  const { verificationData, caseId } = req.body as { verificationData: CreateVerification; caseId: number };
+  const { verificationData, caseId } = req.body as { verificationData: any; caseId: string };
   const files = req.files as Express.Multer.File[];
+  console.log(verificationData);
   const user = (req as CustomRequest).user;
   try {
     const transaction = await prisma.$transaction(async (tx) => {
@@ -18,20 +19,20 @@ export const createVerification = async (req: Request, res: Response) => {
         data: {
           verificationType: {
             connect: {
-              id: verificationData.verificationTypeId
+              id: parseInt(verificationData.verificationTypeId, 10)
             }
           },
           address: verificationData.address,
-          pincode: verificationData.pincode,
+          pincode: parseInt(verificationData.pincode, 10),
           case: {
             connect: {
-              id: caseId
+              id: parseInt(caseId, 10)
             }
           },
           creRemarks: verificationData.creRemarks,
           of: {
             connect: {
-              id: verificationData.of_id
+              id: parseInt(verificationData.employeeId, 10)
             }
           },
           status: Status.PENDING
@@ -74,7 +75,7 @@ export const createVerification = async (req: Request, res: Response) => {
       // Step 3: Update Case Status to PENDING
       await tx.commonData.update({
         where: {
-          id: caseId
+          id: parseInt(caseId)
         },
         data: {
           status: Status.PENDING

@@ -24,6 +24,12 @@ export const userApi = authApiSlice.injectEndpoints({
         method: "GET"
       })
     }),
+    getEmployeeByRole: builder.query({
+      query: ({ role }) => ({
+        url: `/user/role/${role}`,
+        method: "GET"
+      })
+    }),
     deleteEmployee: builder.mutation({
       query: ({ id }) => ({
         url: `/user/${id}`,
@@ -34,4 +40,5 @@ export const userApi = authApiSlice.injectEndpoints({
   })
 });
 
-export const { useCreateEmployeeMutation, useGetEmployeesQuery, useGetEmployeeByIdQuery, useDeleteEmployeeMutation } = userApi;
+export const { useCreateEmployeeMutation, useGetEmployeesQuery, useGetEmployeeByIdQuery, useDeleteEmployeeMutation, useGetEmployeeByRoleQuery } =
+  userApi;
