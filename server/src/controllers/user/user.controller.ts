@@ -6,6 +6,7 @@ import { bucket } from "../../config";
 import prisma from "../../db";
 import { Role } from "@prisma/client";
 import { getFile } from "../../utils/image";
+import { v4 as uuidv4 } from "uuid";
 export const createEmployee = async (req: Request, res: Response) => {
   const { data, branchId } = req.body as { data: CreateEmployee; branchId: number[] };
   const user = (req as CustomRequest).user;
@@ -14,7 +15,9 @@ export const createEmployee = async (req: Request, res: Response) => {
     // Handle file upload from Multer
     let documentUrl: string | null = null;
     if (req.file) {
-      const blob = bucket.file(`documents/${Date.now()}_${req.file.originalname}`);
+      // Generate a unique filename using UUID
+      const uniqueFilename = `${uuidv4()}_${req.file.originalname}`;
+      const blob = bucket.file(`documents/${uniqueFilename}`);
       const blobStream = blob.createWriteStream({
         resumable: false,
         contentType: req.file.mimetype
