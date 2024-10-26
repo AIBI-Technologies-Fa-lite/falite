@@ -9,13 +9,14 @@ export enum Role {
 
 // Enum for various statuses
 export enum Status {
-  PENDING,
-  REJECTED,
-  ONGOING,
-  CANNOTVERIFY,
-  REFER,
-  POSITIVE,
-  NEGATIVE,
-  REASSIGN,
-  REVIEW
+  ASSIGN = "ASSIGN",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+  ONGOING = "ONGOING",
+  CANNOTVERIFY = "CANNOTVERIFY",
+  REFER = "REFER",
+  POSITIVE = "POSITIVE",
+  NEGATIVE = "NEGATIVE",
+  REASSIGN = "REASSIGN",
+  REVIEW = "REVIEW"
 }

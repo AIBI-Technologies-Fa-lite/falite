@@ -17,6 +17,7 @@ import ViewVT from "@pages/Admin/ViewVT";
 
 import AddCase from "@pages/Verifications/AddCase";
 import ViewCase from "@pages/Verifications/ViewCase";
+import ViewCases from "@pages/Verifications/ViewCases";
 import { Role } from "@constants/enum";
 
 const adminRoutes = {
@@ -91,6 +92,10 @@ const verificationRoutes = {
     {
       path: "/verification",
       children: [
+        {
+          path: "/verification/case",
+          element: <ViewCases />
+        },
         {
           path: "/verification/case/:id",
           element: <ViewCase />
