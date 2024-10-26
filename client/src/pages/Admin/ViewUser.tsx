@@ -59,7 +59,11 @@ const UserInfo = ({ user }: { user: User }) => {
       ) : null}
       {user.document && (
         <div className="col-span-1 flex flex-col items-start justify-center">
-          <a href={user.document} className="px-2 py-[2px] text-white text-sm transition duration-300 bg-blue-600 rounded-md hover:bg-blue-800">
+          <a
+            href={user.document}
+            target="_blank"
+            className="px-2 py-[2px] text-white text-sm transition duration-300 bg-blue-600 rounded-md hover:bg-blue-800"
+          >
             View Document
           </a>
         </div>

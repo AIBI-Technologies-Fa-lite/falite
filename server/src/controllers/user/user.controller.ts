@@ -231,5 +231,3 @@ export const deleteUser = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
-
-export const updatePassword = async (req: Request, res: Response) => {};
