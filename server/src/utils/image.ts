@@ -1,5 +1,5 @@
 import { bucket } from "../config";
-export const getFile = async (fileName: string,) => {
+export const getFile = async (fileName: string) => {
   try {
     const file = bucket.file(fileName);
 
@@ -12,7 +12,7 @@ export const getFile = async (fileName: string,) => {
     // Generate a signed URL for the file
     const [url] = await file.getSignedUrl({
       action: "read",
-      expires: Date.now() + 1000 * 60 * 3, // 15 minutes
+      expires: Date.now() + 1000 * 60 * 12, // 15 minutes
       responseDisposition: "inline"
     });
 
