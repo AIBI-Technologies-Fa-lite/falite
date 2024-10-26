@@ -15,6 +15,62 @@ import ViewBranches from "@pages/Admin/ViewBranches";
 import AddVT from "@pages/Admin/AddVT";
 import ViewVT from "@pages/Admin/ViewVT";
 import { Role } from "@constants/enum";
+
+const adminRoutes = {
+  path: "/",
+  element: <RoleGuard allowedRoles={[Role.ADMIN]} children={<Layout />} />,
+  children: [
+    {
+      path: "/user",
+
+      children: [
+        {
+          path: "/user/add",
+          element: <AddUsers />
+        },
+        {
+          path: "/user",
+          element: <ViewUsers />
+        },
+        {
+          path: "/user/:id",
+          element: <ViewUser />
+        }
+      ]
+    },
+    {
+      path: "/branch",
+      children: [
+        {
+          path: "/branch",
+          element: <ViewBranches />
+        },
+        {
+          path: "/branch/add",
+          element: <AddBranch />
+        }
+      ]
+    },
+    {
+      path: "/vt",
+      children: [
+        {
+          path: "/vt",
+          element: <ViewVT />
+        },
+        {
+          path: "/vt/add",
+          element: <AddVT />
+        }
+      ]
+    }
+  ]
+};
+const creRoutes = {
+  path: "/",
+  element: <RoleGuard allowedRoles={[Role.CRE]} children={<Layout />} />
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -25,56 +81,7 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [{ path: "/", element: <HomeRouter /> }]
       },
-      {
-        path: "/",
-        element: <RoleGuard allowedRoles={[Role.ADMIN]} children={<Layout />} />,
-        children: [
-          {
-            path: "/user",
-
-            children: [
-              {
-                path: "/user/add",
-                element: <AddUsers />
-              },
-              {
-                path: "/user",
-                element: <ViewUsers />
-              },
-              {
-                path: "/user/:id",
-                element: <ViewUser />
-              }
-            ]
-          },
-          {
-            path: "/branch",
-            children: [
-              {
-                path: "/branch",
-                element: <ViewBranches />
-              },
-              {
-                path: "/branch/add",
-                element: <AddBranch />
-              }
-            ]
-          },
-          {
-            path: "/vt",
-            children: [
-              {
-                path: "/vt",
-                element: <ViewVT />
-              },
-              {
-                path: "/vt/add",
-                element: <AddVT />
-              }
-            ]
-          }
-        ]
-      }
+      adminRoutes
     ]
   },
   {
