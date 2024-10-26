@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 import { bucket } from "../../config";
 import prisma from "../../db";
 import { Role } from "@prisma/client";
-import { getFile } from "../../utils/image";
+import { getFile } from "../../utils/documents";
 import { v4 as uuidv4 } from "uuid";
 export const createEmployee = async (req: Request, res: Response) => {
   const { data, branchId } = req.body as { data: CreateEmployee; branchId: number[] };

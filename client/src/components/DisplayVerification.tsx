@@ -2,55 +2,14 @@ import React from "react";
 import CaseDetails from "./CaseDetails";
 import { convertToIST } from "@utils/time";
 import ShowDocuments from "./ShowDocuments";
-import { useNavigate } from "react-router-dom";
-
-enum Status {
-  ASSIGN,
-  PENDING,
-  REJECTED,
-  ONGOING,
-  CANNOTVERIFY,
-  REFER,
-  POSITIVE,
-  NEGATIVE,
-  REASSIGN,
-  REVIEW
-}
-
-interface Verification {
-  id: string;
-  verificationType: {
-    name: string;
-  };
-  status: Status;
-  of: {
-    firstName: string;
-    lastName: string;
-    role: "CRE" | "OF" | string;
-  };
-  address: string;
-  pincode: string;
-  creRemarks: string;
-  feRemarks?: string;
-  createdAt: string;
-  updatedAt: string;
-  documents: {
-    id: string;
-    name: string;
-    url: string;
-    employee: {
-      role: "CRE" | "OF" | string;
-    };
-  }[];
-}
+import { Status } from "@constants/enum";
+import { Verification } from "src/types";
 
 interface DisplayVerificationProps {
   verification: Verification;
 }
 
 const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification }) => {
-  const navigate = useNavigate();
-
   return (
     <div className="grid gap-4 mt-6 md:col-span-3 md:grid-cols-3">
       <div className="flex items-center justify-between border-t-2 border-b-2 border-purple-100 md:col-span-3">
@@ -58,19 +17,26 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification 
 
         <p
           className={`font-bold ${
-            verification.status === Status.PENDING ? "text-orange-500" : verification.status === Status.REJECTED ? "text-red-500" : "text-green-500"
+            verification.status === Status.PENDING
+              ? "text-orange-500"
+              : verification.status === Status.ONGOING
+              ? "text-blue-500"
+              : verification.status === Status.REJECTED
+              ? "text-red-500"
+              : "text-green-500"
           }`}
         >
-          {verification.status === Status.PENDING ? "Pending" : verification.status === Status.REJECTED ? "Rejected" : "Completed"}
+          {verification.status === Status.PENDING
+            ? "Pending"
+            : verification.status === Status.ONGOING
+            ? "Ongoing"
+            : verification.status === Status.REJECTED
+            ? "Rejected"
+            : "Completed"}
         </p>
 
-        <div
-          className="px-4 py-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer"
-          onClick={() => {
-            navigate(`/verifications/add/${verification.id}`);
-          }}
-        >
-          Reopen Verification
+        <div className="md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer">
+          Reopen
         </div>
       </div>
       <CaseDetails label="OF" value={`${verification.of.firstName} ${verification.of.lastName}`} />

@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { Status } from "@prisma/client";
 import { apiResponse } from "../../utils/response";
 import { Role } from "@prisma/client";
+import { getFile } from "../../utils/documents";
 export const createCase = async (req: Request, res: Response) => {
   const user = (req as CustomRequest).user;
   const caseData: CreateCase = req.body;
@@ -101,6 +102,13 @@ export const getCaseById = async (req: Request, res: Response) => {
                 firstName: true,
                 lastName: true
               }
+            },
+            documents: {
+              include: {
+                employee: {
+                  select: { role: true }
+                }
+              }
             }
           }
         },
@@ -111,10 +119,24 @@ export const getCaseById = async (req: Request, res: Response) => {
         }
       }
     });
+
     if (!caseData) {
       apiResponse.success(res, "Case Not Found");
       return;
     }
+
+    // Process each document to add the url field
+    await Promise.all(
+      caseData.verifications.map(async (verification) => {
+        verification.documents = await Promise.all(
+          verification.documents.map(async (document) => {
+            const url = await getFile(document.name);
+            return { ...document, url };
+          })
+        );
+      })
+    );
+
     apiResponse.success(res, { case: caseData });
   } catch (err) {
     apiResponse.error(res);

@@ -10,33 +10,7 @@ import { Role, Status } from "@constants/enum";
 import { useForm } from "react-hook-form";
 import { useGetAllVtQuery } from "@api/vtApi";
 import { useGetEmployeeByRoleQuery } from "@api/userApi";
-
-interface Verification {
-  id: string;
-  verificationType: {
-    name: string;
-  };
-  status: number;
-  of: {
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-  address: string;
-  pincode: string;
-  creRemarks: string;
-  feRemarks?: string;
-  createdAt: string;
-  updatedAt: string;
-  documents: {
-    id: string;
-    name: string;
-    url: string;
-    employee: {
-      role: string;
-    };
-  }[];
-}
+import { Verification } from "src/types";
 
 interface VerificationType {
   id: number;
@@ -75,12 +49,13 @@ const ViewCase: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [fileNames, setFileNames] = useState<string[]>([]); // State to track file names
 
-  const [createVerification, { isLoading: _, error: createError }] = useCreateVerificationMutation();
+  const [createVerification, { isLoading: isCreating, error: createError }] = useCreateVerificationMutation();
 
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    reset
   } = useForm();
 
   useEffect(() => {
@@ -126,6 +101,7 @@ const ViewCase: React.FC = () => {
       await createVerification(formData).unwrap();
       toast.success("Verification added successfully!");
       setShowModal(false);
+      reset();
       refetch();
     } catch (err) {
       toast.error("Failed to add verification. Please try again.");
@@ -292,7 +268,7 @@ const ViewCase: React.FC = () => {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400">
+                  <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={isCreating}>
                     Submit
                   </button>
                 </div>
