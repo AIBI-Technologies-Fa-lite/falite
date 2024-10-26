@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEmployee, getEmployees, getEmployeesById, deleteUser } from "../../controllers/admin/user.controller";
+import { createEmployee, getEmployees, getEmployeesById, deleteUser } from "../../controllers/user/user.controller";
 import { roleMiddleware } from "../../middlewares/auth";
 import { Role } from "@prisma/client";
 import { upload } from "../../config";

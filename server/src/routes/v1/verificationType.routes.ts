@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getVerificationTypes, createVerificationType, deleteVerificationType } from "../../controllers/admin/verificationType.controller";
+import { getVerificationTypes, createVerificationType, deleteVerificationType } from "../../controllers/verifications/verificationType.controller";
 import { roleMiddleware } from "../../middlewares/auth";
 import { Role } from "@prisma/client";
 const vtRouter = Router();

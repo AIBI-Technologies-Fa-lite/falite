@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBranch, getBranches, deleteBranch, getAllBranches } from "../../controllers/admin/branch.controller";
+import { createBranch, getBranches, deleteBranch, getAllBranches } from "../../controllers/user/branch.controller";
 import { roleMiddleware } from "../../middlewares/auth";
 import { Role } from "@prisma/client";
 const branchRouter = Router();

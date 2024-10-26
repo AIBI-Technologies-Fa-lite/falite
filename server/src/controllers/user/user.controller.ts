@@ -4,6 +4,7 @@ import { genSalt, hash } from "bcrypt";
 import { Request, Response } from "express";
 
 import prisma from "../../db";
+import { Role } from "@prisma/client";
 
 export const createEmployee = async (req: Request, res: Response) => {
   const { data, branchId } = req.body as { data: CreateEmployee; branchId: number[] };
@@ -154,6 +155,33 @@ export const getEmployeesById = async (req: Request, res: Response) => {
     apiResponse.success(res, { user });
   } catch (err) {
     apiResponse.error(res);
+  }
+};
+
+export const getEmployeeByRole = async (req: Request, res: Response) => {
+  const { role } = req.params as { role: Role };
+
+  try {
+    // Fetch employees based on role with their branch and organization data
+    const employees = await prisma.user.findMany({
+      where: { role: role },
+      include: {
+        branches: true, // Include branch details if needed
+        organization: true, // Include organization details if needed
+        location: true // Include location if relevant
+      }
+    });
+
+    // Check if employees with the role exist
+    if (employees.length === 0) {
+      return apiResponse.fail(res, "No employees found with this role");
+    }
+
+    // Send success response with found employees
+    apiResponse.success(res, "Employees retrieved successfully", employees);
+  } catch (err) {
+    console.error("Error retrieving employees by role:", err); // Log error for debugging
+    apiResponse.error(res, "Failed to retrieve employees");
   }
 };
 

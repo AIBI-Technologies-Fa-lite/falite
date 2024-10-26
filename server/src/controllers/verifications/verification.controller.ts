@@ -140,3 +140,40 @@ export const getCases = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const getCaseById = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  try {
+    const caseId: number = parseInt(id);
+    const caseData = await prisma.commonData.findUnique({
+      where: { id: caseId },
+      include: {
+        verifications: {
+          include: {
+            verificationType: true,
+            of: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        },
+        employee: {
+          select: {
+            firstName: true
+          }
+        }
+      }
+    });
+    if (!caseData) {
+      apiResponse.success(res, "Case Not Found");
+      return;
+    }
+    apiResponse.success(res, { case: caseData });
+  } catch (err) {
+    apiResponse.error(res);
+  }
+};
+
+export const getAllVerificationTypes = async (req: Request, res: Response) => {};

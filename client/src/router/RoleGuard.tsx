@@ -11,7 +11,7 @@ const getUserRole = () => {
 
 type Props = {
   children: ReactNode;
-  allowedRoles: [Role];
+  allowedRoles: Role[];
 };
 
 const RoleGuard = (props: Props) => {

@@ -39,7 +39,7 @@ const AddCase = () => {
       const response = await addCase(caseData as CaseFormData).unwrap();
       reset();
       toast.success("Case added successfully!");
-      navigate(`/cases/${response.data.case.id}`);
+      navigate(`/verification/case/${response.data.case.id}`);
     } catch (err: any) {
       toast.error(err.data?.message || "An error occurred");
     }
