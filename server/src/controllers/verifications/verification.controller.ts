@@ -5,20 +5,7 @@ import prisma from "../../db";
 import { Role, Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
-export const createCase = async (req: Request, res: Response) => {
-  const user = (req as CustomRequest).user;
-  const caseData: CreateCase = req.body;
-  try {
-    const newCase = await prisma.commonData.create({
-      data: { ...caseData, status: Status.ASSIGN, employee: { connect: { id: user.id } } },
-      select: { id: true }
-    });
-    apiResponse.success(res, { case: newCase });
-  } catch (err) {
-    console.log(err);
-    apiResponse.error(res);
-  }
-};
+
 
 export const createVerification = async (req: Request, res: Response) => {
   const { verificationData, caseId } = req.body as { verificationData: CreateVerification; caseId: number };

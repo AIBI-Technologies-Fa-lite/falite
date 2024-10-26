@@ -2,17 +2,39 @@ import { apiResponse, CustomRequest } from "../../utils/response";
 import { CreateEmployee } from "../../dto";
 import { genSalt, hash } from "bcrypt";
 import { Request, Response } from "express";
-
+import { bucket } from "../../config";
 import prisma from "../../db";
 import { Role } from "@prisma/client";
-
+import { getFile } from "../../utils/image";
 export const createEmployee = async (req: Request, res: Response) => {
   const { data, branchId } = req.body as { data: CreateEmployee; branchId: number[] };
   const user = (req as CustomRequest).user;
-  console.log(data);
+
   try {
     // Handle file upload from Multer
-    const documentUrl = req.file?.path || null; // Path where the file was stored
+    let documentUrl: string | null = null;
+    if (req.file) {
+      const blob = bucket.file(`documents/${Date.now()}_${req.file.originalname}`);
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+        contentType: req.file.mimetype
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        blobStream.on("error", (err) => {
+          console.error("Error uploading document:", err);
+          apiResponse.error(res, "Failed to upload document");
+          reject(err);
+        });
+
+        blobStream.on("finish", () => {
+          documentUrl = `${blob.name}`;
+          resolve();
+        });
+
+        blobStream.end(req.file?.buffer);
+      });
+    }
 
     // Create a location with default latitude and longitude
     const location = await prisma.coordinates.create({
@@ -61,6 +83,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     apiResponse.error(res, "Failed to create user");
   }
 };
+
 export const getEmployees = async (req: Request, res: Response) => {
   const {
     page = "1",
@@ -152,6 +175,9 @@ export const getEmployeesById = async (req: Request, res: Response) => {
       apiResponse.success(res, "User Not Found");
       return;
     }
+    let documentUrl: string | null = null;
+    if (user.document) documentUrl = await getFile(user.document);
+    user.document = documentUrl;
     apiResponse.success(res, { user });
   } catch (err) {
     apiResponse.error(res);

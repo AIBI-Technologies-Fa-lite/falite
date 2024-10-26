@@ -35,40 +35,7 @@ const UserDetails = (props: Props) => {
   );
 };
 
-const renderDocument = (documentUrl: string) => {
-  const extension = documentUrl.split(".").pop()?.toLowerCase();
-
-  if (["jpg", "jpeg", "png", "gif", "svg"].includes(extension!)) {
-    // Render image if it's an image file
-    return <img className="w-full" src={documentUrl} alt="User Document" />;
-  } else if (extension === "pdf") {
-    // Render PDF using iframe
-    return <iframe className="w-full h-[90%] " src={documentUrl} title="PDF Document"></iframe>;
-  } else {
-    // If file type is unsupported
-    return <p className="flex h-full w-full justify-center items-center font-bold text-white text-3xl">Unsupported document type</p>;
-  }
-};
-
-const DocumentOverlay = ({ documentUrl, onClose }: { documentUrl: string; onClose: () => void }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="relative p-4 rounded shadow-lg w-full h-full">
-        <button
-          className="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-800 font-bold rounded-full p-2 w-8 h-8 flex items-center justify-center text-xl"
-          onClick={onClose}
-        >
-          &times;
-        </button>
-
-        {renderDocument(documentUrl)}
-      </div>
-    </div>
-  );
-};
-
 const UserInfo = ({ user }: { user: User }) => {
-  const [showOverlay, setShowOverlay] = useState(false);
   return (
     <>
       {user.firstName && <UserDetails label="First Name" value={user.firstName} />}
@@ -92,16 +59,14 @@ const UserInfo = ({ user }: { user: User }) => {
       ) : null}
       {user.document && (
         <div className="col-span-1 flex flex-col items-start justify-center">
-          <button
+          <a
             className="px-2 py-[2px] text-white text-sm transition duration-300 bg-blue-600 rounded-md hover:bg-blue-800"
-            onClick={() => setShowOverlay(true)}
+            href={user.document}
+            target="_blank"
           >
             View Document
-          </button>
+          </a>
         </div>
-      )}
-      {showOverlay && user.document && (
-        <DocumentOverlay documentUrl={`http://localhost:3001/${user.document.replace("src/", "")}`} onClose={() => setShowOverlay(false)} />
       )}
     </>
   );
