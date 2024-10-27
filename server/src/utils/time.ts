@@ -17,31 +17,25 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
 
   // Adjust start time if it is outside working hours
   const adjustStartTime = (time: DateTime): DateTime => {
-    // If the day is not a working day, move to the next working day
     if (!workDays.includes(time.weekday)) {
-      // Move to the next working day and set the time to the start of the working hours
       do {
         time = time.plus({ days: 1 });
       } while (!workDays.includes(time.weekday));
       return time.set({ hour: workStartHour, minute: 0, second: 0 });
     }
 
-    // If the time is before working hours, adjust to the start of the working day
     if (time.hour < workStartHour) {
       return time.set({ hour: workStartHour, minute: 0, second: 0 });
     }
 
-    // If the time is after working hours, move to the next working day
     if (time.hour >= workEndHour) {
       time = time.plus({ days: 1 });
-      // Adjust to the next working day if necessary
       while (!workDays.includes(time.weekday)) {
         time = time.plus({ days: 1 });
       }
       return time.set({ hour: workStartHour, minute: 0, second: 0 });
     }
 
-    // If the time is within working hours, no adjustment needed
     return time;
   };
 
@@ -59,14 +53,13 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
   let adjustedStart = adjustStartTime(start);
   let adjustedEnd = adjustEndTime(end);
 
-  // If the start date is after the end date, something is wrong
   if (adjustedStart > adjustedEnd) {
-    return { time: "0 seconds", status: 0 };
+    return { time: "0 hours", status: 0 };
   }
 
-  // Calculate the total business time between two DateTime objects
-  const calculateBusinessTime = (start: DateTime, end: DateTime) => {
-    let totalMinutes = 0;
+  // Calculate total business hours between start and end times
+  const calculateBusinessHours = (start: DateTime, end: DateTime) => {
+    let totalHours = 0;
     let current = start;
 
     while (current < end) {
@@ -76,41 +69,29 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
       if (isWorkingDay && isWithinWorkingHours) {
         const nextHour = current.plus({ hours: 1 });
         if (nextHour > end) {
-          totalMinutes += Math.floor(end.diff(current, "minutes").minutes);
+          totalHours += end.diff(current, "hours").hours;
           break;
         } else {
-          totalMinutes += 60; // Add full hour
+          totalHours += 1;
         }
         current = nextHour;
       } else {
-        // Move to the start of the next working day
         current = current.plus({ days: 1 }).set({ hour: workStartHour, minute: 0, second: 0 });
       }
     }
 
-    const totalHours = Math.floor(totalMinutes / 60);
-    const remainingMinutes = totalMinutes % 60;
-
-    return { totalHours, totalMinutes: remainingMinutes };
+    return totalHours;
   };
 
-  const { totalHours, totalMinutes } = calculateBusinessTime(adjustedStart, adjustedEnd);
+  const totalHours = calculateBusinessHours(adjustedStart, adjustedEnd);
 
-  // Determine the highest denomination for display
-  let tat,
-    status = 0;
-  if (totalHours > 0) {
-    if (totalHours > 16) {
-      status = 1;
-    } else if (totalHours > 18) {
-      status = 2;
-    }
-    tat = `${totalHours} hour${totalHours > 1 ? "s" : ""}`;
-  } else if (totalMinutes > 0) {
-    tat = `${totalMinutes} minute${totalMinutes > 1 ? "s" : ""}`;
-  } else {
-    tat = "0 seconds";
+  // Determine status based on hours
+  let status = 0;
+  if (totalHours > 16) {
+    status = 1;
+  } else if (totalHours > 18) {
+    status = 2;
   }
 
-  return { time: tat, status };
+  return { time: `${Math.floor(totalHours)} hour${totalHours !== 1 ? "s" : ""}`, status };
 };

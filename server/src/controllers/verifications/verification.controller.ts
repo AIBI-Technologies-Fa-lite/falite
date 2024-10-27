@@ -186,7 +186,7 @@ export const getVerifications = async (req: Request, res: Response) => {
     const totalPages = Math.ceil(count / pageSize);
 
     // Send the response with pagination data
-    apiResponse.success(res, { verifications: verificationsWithTAT, totalPages, page: pageNumber, limit: pageSize });
+    apiResponse.success(res, { verifications: verificationsWithTAT }, { pages: totalPages });
   } catch (err) {
     console.error("Error fetching verifications:", err);
     apiResponse.error(res, "An error occurred while fetching verifications.");

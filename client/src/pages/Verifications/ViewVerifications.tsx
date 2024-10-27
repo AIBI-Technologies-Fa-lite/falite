@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "src/store"; // Assuming you have a RootState type for your redux state
 import { Role } from "@constants/enum";
+import { Status } from "@constants/enum";
 const ViewVerifications: React.FC = () => {
   const navigate = useNavigate();
   const role = useSelector((state: RootState) => state.auth.user?.role as Role);
@@ -38,12 +39,13 @@ const ViewVerifications: React.FC = () => {
     sort: sorting.length > 0 ? sorting[0].id : undefined,
     order: sorting.length > 0 ? (sorting[0].desc ? "desc" : "asc") : undefined
   });
-
   useEffect(() => {
     if (error) {
       toast.error("An error occurred while fetching verifications.");
     }
   }, [error]);
+
+  console.log(data);
 
   const columns = useMemo(() => {
     const commonColumns = [
@@ -67,9 +69,9 @@ const ViewVerifications: React.FC = () => {
         accessorKey: "status",
         cell: (info) => {
           const status = info.getValue();
-          if (status === 0) return <div className="text-orange-500">Pending</div>;
-          if (status === 1) return <div className="text-yellow-500">In Progress</div>;
-          if (status === 2) return <div className="text-red-500">Reassign</div>;
+          if (status === Status.PENDING) return <div className="text-orange-500">Pending</div>;
+          if (status === Status.ONGOING) return <div className="text-yellow-500">In Progress</div>;
+          if (status === Status.REASSIGN) return <div className="text-red-500">Reassign</div>;
           return <div className="text-green-500">Completed</div>;
         },
         enableSorting: false
@@ -113,6 +115,11 @@ const ViewVerifications: React.FC = () => {
     return commonColumns;
   }, [navigate, role]);
 
+  useEffect(() => {
+    console.log("Total pages from API:", data?.meta.pages);
+  }, [data]);
+
+  // Update `pageCount` in `useReactTable`
   const table = useReactTable({
     data: data?.data.verifications || [],
     columns,
@@ -122,7 +129,7 @@ const ViewVerifications: React.FC = () => {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
-    pageCount: data?.meta.totalPages || 0
+    pageCount: data?.meta.pages || 0 // Default to 1 if no pages data to avoid issues
   });
 
   const currentPage = table.getState().pagination.pageIndex;
@@ -219,7 +226,7 @@ const ViewVerifications: React.FC = () => {
 
       <div className="flex items-center justify-center mt-4 space-x-2">
         <button
-          onClick={() => table.previousPage()}
+          onClick={() => table.getCanPreviousPage() && setPageIndex((prev) => prev - 1)}
           disabled={!table.getCanPreviousPage()}
           className={`px-3 py-1 rounded-md text-sm font-medium ${
             table.getCanPreviousPage() ? "text-gray-600 hover:text-purple-600" : "text-gray-300 cursor-not-allowed"
@@ -241,7 +248,7 @@ const ViewVerifications: React.FC = () => {
           </button>
         ))}
         <button
-          onClick={() => table.nextPage()}
+          onClick={() => table.getCanNextPage() && setPageIndex((prev) => prev + 1)}
           disabled={!table.getCanNextPage()}
           className={`px-3 py-1 rounded-md text-sm font-medium ${
             table.getCanNextPage() ? "text-gray-600 hover:text-purple-600" : "text-gray-300 cursor-not-allowed"
