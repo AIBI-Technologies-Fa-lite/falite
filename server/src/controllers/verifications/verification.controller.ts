@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { apiResponse, CustomRequest } from "../../utils/response";
-import { CreateVerification } from "../../dto";
+import { calculateTat } from "../../utils/time";
 import { bucket } from "../../config";
 import prisma from "../../db";
 import { NotificationType, Status } from "@prisma/client";
@@ -89,6 +89,107 @@ export const createVerification = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Transaction failed: ", err);
     apiResponse.error(res);
+  }
+};
+export const getVerifications = async (req: Request, res: Response) => {
+  const user = (req as CustomRequest).user;
+  const {
+    page = "1",
+    limit = "10",
+    search = "",
+    searchColumn = "",
+    status = "0",
+    order = "desc"
+  } = req.query as {
+    page?: string;
+    limit?: string;
+    search?: string;
+    searchColumn?: "clientName" | "creName" | "ofName" | "id";
+    status?: string;
+    order?: "asc" | "desc";
+  };
+
+  try {
+    const pageNumber: number = parseInt(page, 10);
+    const pageSize: number = parseInt(limit, 10);
+    const skipAmount: number = (pageNumber - 1) * pageSize;
+    const statusFilter: number = parseInt(status, 10);
+    let whereClause: any = {};
+
+    // Filter based on user role
+    if (user.role === "ADMIN") {
+      whereClause.of = { organizationId: user.organizationId };
+    } else if (user.role === "SUPERVISOR") {
+      whereClause.of = { supervisorId: user.id };
+    } else {
+      whereClause.of_id = user.id;
+      whereClause.status = { not: Status.REJECTED };
+    }
+
+    // Apply status filter if specified
+    if (statusFilter >= 0) {
+      whereClause.final = statusFilter;
+    }
+
+    // Search condition based on the search column
+    if (search && searchColumn) {
+      const empName = search.split(" ");
+      switch (searchColumn) {
+        case "clientName":
+          whereClause.clientName = { contains: search, mode: "insensitive" };
+          break;
+        case "id":
+          whereClause.id = parseInt(search, 10);
+          break;
+        case "creName":
+        case "ofName":
+          whereClause.case = {
+            employee: {
+              firstName: { contains: empName[0] || "", mode: "insensitive" },
+              ...(empName[1] && { lastName: { contains: empName[1], mode: "insensitive" } })
+            }
+          };
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Fetch verifications with pagination
+    const verifications = await prisma.verification.findMany({
+      where: whereClause,
+      orderBy: { createdAt: order },
+      include: {
+        of: { select: { firstName: true, lastName: true } },
+        case: {
+          select: {
+            employee: { select: { firstName: true, lastName: true } },
+            product: true,
+            clientName: true
+          }
+        },
+        verificationType: true
+      },
+      take: pageSize,
+      skip: skipAmount
+    });
+
+    // Calculate TAT for each verification
+    const verificationsWithTAT = verifications.map((verification) => {
+      const { createdAt, updatedAt, final } = verification;
+      const tat = calculateTat(createdAt, updatedAt, final);
+      return { ...verification, tat };
+    });
+
+    // Count total verifications for pagination
+    const count = await prisma.verification.count({ where: whereClause });
+    const totalPages = Math.ceil(count / pageSize);
+
+    // Send the response with pagination data
+    apiResponse.success(res, { verifications: verificationsWithTAT, totalPages, page: pageNumber, limit: pageSize });
+  } catch (err) {
+    console.error("Error fetching verifications:", err);
+    apiResponse.error(res, "An error occurred while fetching verifications.");
   }
 };
 

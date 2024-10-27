@@ -18,6 +18,7 @@ import ViewVT from "@pages/Admin/ViewVT";
 import AddCase from "@pages/Verifications/AddCase";
 import ViewCase from "@pages/Verifications/ViewCase";
 import ViewCases from "@pages/Verifications/ViewCases";
+import ViewVerifications from "@pages/Verifications/ViewVerifications";
 import { Role } from "@constants/enum";
 
 const adminRoutes = {
@@ -87,11 +88,15 @@ const creRoutes = {
 };
 const verificationRoutes = {
   path: "/",
-  element: <RoleGuard allowedRoles={[Role.CRE, Role.SUPERVISOR]} children={<Layout />} />,
+  element: <RoleGuard allowedRoles={[Role.CRE, Role.SUPERVISOR, Role.OF]} children={<Layout />} />,
   children: [
     {
       path: "/verification",
       children: [
+        {
+          path: "/verification",
+          element: <ViewVerifications />
+        },
         {
           path: "/verification/case",
           element: <ViewCases />

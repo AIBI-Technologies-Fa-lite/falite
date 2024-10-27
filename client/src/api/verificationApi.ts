@@ -30,8 +30,17 @@ const verificationApi = authApiSlice.injectEndpoints({
         body: formData
       }),
       invalidatesTags: ["verifications"]
+    }),
+    getAllVerifications: builder.query({
+      query: ({ page = 1, limit = 10, search, searchColumn, status, order }) => ({
+        url: "/verification",
+        method: "GET",
+        params: { page, limit, search, searchColumn, status, order }
+      }),
+      providesTags: ["verifications"]
     })
   })
 });
 
-export const { useCreateCaseMutation, useGetCaseByIdQuery, useCreateVerificationMutation, useGetCasesQuery } = verificationApi;
+export const { useCreateCaseMutation, useGetCaseByIdQuery, useCreateVerificationMutation, useGetCasesQuery, useGetAllVerificationsQuery } =
+  verificationApi;

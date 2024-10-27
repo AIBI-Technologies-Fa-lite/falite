@@ -35,6 +35,7 @@ model Verification {
   documents Document[]
 
   status Status
+  final  Int    @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
