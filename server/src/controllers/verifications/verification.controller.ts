@@ -7,6 +7,7 @@ import { NotificationType, Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import { sendNotification } from "../../utils/notification";
+import { getFile } from "../../utils/documents";
 export const createVerification = async (req: Request, res: Response) => {
   const { verificationData, caseId } = req.body as { verificationData: any; caseId: string };
   const files = req.files as Express.Multer.File[];
@@ -192,7 +193,62 @@ export const getVerifications = async (req: Request, res: Response) => {
     apiResponse.error(res, "An error occurred while fetching verifications.");
   }
 };
+export const getVerificationById = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
 
+  try {
+    const vid: number = parseInt(id);
+    const verificationData = await prisma.verification.findUnique({
+      where: { id: vid },
+      include: {
+        verificationType: {
+          select: {
+            name: true
+          }
+        },
+        documents: {
+          include: {
+            employee: {
+              select: { role: true }
+            }
+          }
+        },
+        of: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        },
+        case: {
+          include: {
+            employee: {
+              select: { firstName: true, lastName: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!verificationData) {
+      apiResponse.success(res, "Case Not Found");
+      return;
+    }
+
+    // Process each document to add the url field
+    await Promise.all(
+      (verificationData.documents = await Promise.all(
+        verificationData.documents.map(async (document) => {
+          const url = await getFile(document.name);
+          return { ...document, url };
+        })
+      ))
+    );
+
+    apiResponse.success(res, { verification: verificationData });
+  } catch (err) {
+    apiResponse.error(res);
+  }
+};
 export const ofResponse = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { reject = false, remarks = null }: { reject?: boolean; remarks?: string | null } = req.body;

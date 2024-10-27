@@ -20,8 +20,7 @@ const verificationApi = authApiSlice.injectEndpoints({
       query: ({ id }) => ({
         url: `/verification/case/${id}`,
         method: "GET"
-      }),
-      providesTags: ["verifications"]
+      })
     }),
     createVerification: builder.mutation({
       query: (formData) => ({
@@ -38,9 +37,29 @@ const verificationApi = authApiSlice.injectEndpoints({
         params: { page, limit, search, searchColumn, status, order }
       }),
       providesTags: ["verifications"]
+    }),
+    getVerificationById: builder.query({
+      query: ({ id }) => ({
+        url: `/verification/${id}`,
+        method: "GET"
+      })
+    }),
+    sendOfResponse: builder.mutation({
+      query: ({ id, reject, remarks }) => ({
+        url: `/verification/of/${id}`,
+        method: "PUT",
+        body: { reject, remarks }
+      })
     })
   })
 });
 
-export const { useCreateCaseMutation, useGetCaseByIdQuery, useCreateVerificationMutation, useGetCasesQuery, useGetAllVerificationsQuery } =
-  verificationApi;
+export const {
+  useCreateCaseMutation,
+  useGetCaseByIdQuery,
+  useCreateVerificationMutation,
+  useGetCasesQuery,
+  useGetAllVerificationsQuery,
+  useGetVerificationByIdQuery,
+  useSendOfResponseMutation
+} = verificationApi;
