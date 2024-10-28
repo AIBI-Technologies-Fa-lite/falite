@@ -49,7 +49,8 @@ const verificationApi = authApiSlice.injectEndpoints({
         url: `/verification/of/${id}`,
         method: "PUT",
         body: { reject, remarks }
-      })
+      }),
+      invalidatesTags: ["verifications"]
     })
   })
 });

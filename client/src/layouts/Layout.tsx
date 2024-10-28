@@ -5,7 +5,7 @@ import Top from "@components/Top";
 const Layout = () => {
   return (
     <div className="min-h-screen">
-      <div className="md:hidden">//Header Here</div>
+      <div className="md:hidden"></div>
       <div className="grid grid-cols-6">
         <div className="hidden md:col-span-1 md:block">
           <Sidebar />

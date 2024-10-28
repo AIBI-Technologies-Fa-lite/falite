@@ -256,7 +256,7 @@ export const ofResponse = async (req: Request, res: Response) => {
     if (reject) {
       const foundVerification = await prisma.verification.update({
         where: { id: parseInt(id) },
-        data: { status: Status.REASSIGN, feRemarks: remarks },
+        data: { status: Status.REJECTED, feRemarks: remarks },
         include: { case: { select: { employeeId: true } } }
       });
 
@@ -264,6 +264,7 @@ export const ofResponse = async (req: Request, res: Response) => {
       apiResponse.success(res, {});
     } else {
       await prisma.verification.update({ where: { id: parseInt(id) }, data: { status: Status.ONGOING } });
+      apiResponse.success(res, {});
     }
   } catch (err) {
     console.log(err);

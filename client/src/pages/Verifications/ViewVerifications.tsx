@@ -86,7 +86,7 @@ const ViewVerifications: React.FC = () => {
         header: "Actions",
         cell: ({ row }) => (
           <button
-            onClick={() => navigate(`/verifications/${row.original.id}`)}
+            onClick={() => navigate(`/verification/${row.original.id}`)}
             className="px-4 py-1 text-white transition duration-300 bg-purple-600 rounded-md hover:bg-purple-800"
           >
             View

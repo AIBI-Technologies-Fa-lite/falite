@@ -9,7 +9,7 @@ import { convertToIST } from "@utils/time";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import ShowDocuments from "@components/ShowDocuments";
-import { Role } from "@constants/enum";
+import { Role, Status } from "@constants/enum";
 
 const RejectModal = ({ isOpen, onClose, onSubmit, rejectReason, setRejectReason }) => {
   if (!isOpen) return null;
@@ -78,13 +78,13 @@ const ViewVerification = () => {
   const { id } = useParams();
   const role = useSelector((state: RootState) => state.auth.user?.role);
 
-  const { data, error, isLoading } = useGetVerificationByIdQuery({ id });
+  const { data, error, isLoading, refetch } = useGetVerificationByIdQuery({ id });
   const [ofResponse] = useSendOfResponseMutation();
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [reassignModal, setReassignModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
-  const [fileNames, setFileNames] = useState([]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
 
   const {
     register,
@@ -101,16 +101,17 @@ const ViewVerification = () => {
 
   useEffect(() => {
     if (error) {
-      toast.error(error?.data?.message || "An error occurred while fetching the case.");
+      toast.error("An error occurred while fetching the case.");
     }
   }, [error]);
 
   const handleAcceptClick = async () => {
     try {
       await ofResponse({ id }).unwrap();
+      refetch();
       toast.success("Case accepted successfully.");
     } catch (err) {
-      toast.error(err?.data?.message || "An error occurred while accepting the case.");
+      toast.error("An error occurred while accepting the case.");
     }
   };
 
@@ -123,21 +124,23 @@ const ViewVerification = () => {
       await ofResponse({ id, reject: true, remarks: rejectReason }).unwrap();
       toast.success("Case rejected successfully.");
       setIsRejectModalOpen(false);
+      navigate("/verification");
     } catch (err) {
-      toast.error(err?.data?.message || "An error occurred while rejecting the case.");
+      toast.error("An error occurred while rejecting the case.");
     }
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    setFileNames(files.map((file) => file.name));
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const names = files.map((file) => file.name);
+    setFileNames(names);
   };
 
   const onSubmit = async (data) => {
+    console.log(data);
     try {
       const position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject));
       const { latitude, longitude } = position.coords;
-
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
         if (key !== "files") {
@@ -152,13 +155,11 @@ const ViewVerification = () => {
       formData.append("lat", latitude);
       formData.append("long", longitude);
       formData.append("id", id);
-
       reset();
       setFileNames([]);
       toast.success("Verification Submitted successfully");
-      navigate(`/verifications`);
     } catch (err) {
-      toast.error(err?.data?.message || "Failed to update verification");
+      toast.error("Failed to update verification");
     }
   };
 
@@ -183,14 +184,14 @@ const ViewVerification = () => {
   const { verification } = data.data;
   const caseData = verification?.case;
   const canSeeCREDocuments = role !== "OF" || (role === "OF" && verification.final === 0);
-  console.log(verification);
+
   return (
     <div className="flex flex-col w-full gap-6">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4">
         <hr className="md:col-span-3" />
         <div className="flex flex-col justify-between gap-2 md:col-span-3 md:flex-row">
           <p className="text-2xl font-bold text-gray-500 md:col-span-3">Verification Details</p>
-          {role === "OF" && verification.status === 0 ? (
+          {role === "OF" && verification.status === Status.PENDING ? (
             <div className="flex gap-4">
               <button className="px-2 py-1 text-white bg-green-500 rounded-lg" onClick={handleAcceptClick}>
                 Accept
@@ -205,9 +206,21 @@ const ViewVerification = () => {
             </button>
           ) : (
             <p
-              className={`font-bold ${verification.status === 1 ? "text-orange-500" : verification.status === 2 ? "text-red-500" : "text-green-500"}`}
+              className={`font-bold ${
+                verification.status === Status.PENDING
+                  ? "text-orange-500"
+                  : verification.statu === Status.REJECTED
+                  ? "text-red-500"
+                  : "text-green-500"
+              }`}
             >
-              {verification.status === 1 ? "Pending" : verification.status === 2 ? "Rejected" : "Completed"}
+              {verification.status === Status.PENDING
+                ? "Pending"
+                : verification.status === Status.REJECTED
+                ? "Rejected"
+                : verification.status === Status.ONGOING
+                ? "Ongoing"
+                : "Complete"}
             </p>
           )}
         </div>
@@ -231,7 +244,7 @@ const ViewVerification = () => {
         {verification.documents.length > 0 && <ShowDocuments canSeeCREDocuments={canSeeCREDocuments} documents={verification.documents} />}
       </div>
 
-      {verification.status === 1 && (
+      {verification.status === Status.ONGOING && (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
             <div className="flex flex-col col-span-1 gap-2">
@@ -258,6 +271,15 @@ const ViewVerification = () => {
                   </li>
                 ))}
               </ul>
+            </div>
+            <div className="flex flex-col col-span-1 gap-2">
+              <label>status {errors.status ? <span className="text-red-500">*</span> : null}</label>
+              <select {...register("status", { required: true })} className={`p-2 border-gray-500 rounded-lg border-2`}>
+                <option value={Status.POSITIVE}>POSITIVE</option>
+                <option value={Status.NEGATIVE}>NEGATIVE</option>
+                <option value={Status.CANNOTVERIFY}>CANNOT VERIFY</option>
+                <option value={Status.REFER}>REFER</option>
+              </select>
             </div>
             <div className="flex flex-col gap-2 md:col-span-2">
               <label>Remarks {errors.remarks && <span className="text-red-500">*</span>}</label>
@@ -286,7 +308,7 @@ const ViewVerification = () => {
         isOpen={reassignModal}
         onClose={() => setReassignModal(false)}
         onSubmit={reHandleSubmit((data) => {
-          // handle reassign submit
+          console.log(data);
         })}
         ofData={ofData}
         reErrors={reErrors}
