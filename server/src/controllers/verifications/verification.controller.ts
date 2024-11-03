@@ -271,3 +271,6 @@ export const ofResponse = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const reopenVerification = async (req: Request, res: Response) => {
+  
+};
