@@ -29,7 +29,9 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.13.0",
+    "@mapbox/mapbox-sdk": "^0.16.1",
     "@prisma/client": "^5.20.0",
+    "@types/mapbox__mapbox-sdk": "^0.16.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

@@ -142,3 +142,21 @@ export const getCaseById = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const closeCase = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body as { status: Status };
+
+  try {
+    const updatedCase = await prisma.commonData.update({
+      where: { id: parseInt(id) },
+      data: {
+        status: status,
+        final: 1
+      }
+    });
+    apiResponse.success(res, {});
+  } catch (err) {
+    console.log(err);
+    apiResponse.error(res);
+  }
+};
