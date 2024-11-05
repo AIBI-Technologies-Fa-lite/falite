@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useGetCaseByIdQuery, useCreateVerificationMutation } from "@api/verificationApi";
+import { useGetCaseByIdQuery, useCreateVerificationMutation, useCloseCaseMutation } from "@api/verificationApi";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -47,9 +47,11 @@ const ViewCase: React.FC = () => {
   const { data: vtData, error: vtError } = useGetAllVtQuery({});
   const { data: ofData, error: ofError } = useGetEmployeeByRoleQuery({ role: Role.OF });
   const [showModal, setShowModal] = useState(false);
+  const [closeModal, setCloseModal] = useState(false);
   const [fileNames, setFileNames] = useState<string[]>([]); // State to track file names
 
   const [createVerification, { isLoading: isCreating, error: createError }] = useCreateVerificationMutation();
+  const [closeCase, { isLoading: isClosing, error: closeError }] = useCloseCaseMutation();
 
   const {
     register,
@@ -65,6 +67,21 @@ const ViewCase: React.FC = () => {
     if (createError) toast.error("Failed to create verification.");
   }, [error, vtError, ofError, createError]);
 
+  const onClose = async (data: any) => {
+    if (!id) {
+      toast.error("Case ID is missing.");
+      return;
+    }
+    try {
+      await closeCase({ ...data, id }).unwrap();
+      toast.success("Case Closed Successfully!");
+      setCloseModal(false);
+      reset();
+      refetch();
+    } catch (err) {
+      toast.error("Failed to Close. Please try again.");
+    }
+  };
   const onSubmit = async (data: any) => {
     if (!id) {
       toast.error("Case ID is missing.");
@@ -147,17 +164,28 @@ const ViewCase: React.FC = () => {
           ) : (
             <div className="md:col-span-3">No Verification Found</div>
           )}
-
-          {role === "CRE" && caseData.final !== 1 && id && (
-            <div className="md:col-span-3 mt-8">
-              <button
-                className="w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-8"
-                onClick={() => setShowModal(true)}
-              >
-                New Verification
-              </button>
-            </div>
-          )}
+          <div className="flex gap-4">
+            {role === "CRE" && caseData.status === "REVIEW" && (
+              <div className="md:col-span-3 mt-8">
+                <button
+                  className="w-full px-4 py-2 text-xs text-white bg-green-600 rounded-lg hover:bg-green-400 md:w-auto mb-8"
+                  onClick={() => setCloseModal(true)}
+                >
+                  Close Verification
+                </button>
+              </div>
+            )}
+            {role === "CRE" && caseData.final !== 1 && id && (
+              <div className="md:col-span-3 mt-8">
+                <button
+                  className="w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-8"
+                  onClick={() => setShowModal(true)}
+                >
+                  New Verification
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Modal for adding new verification */}
@@ -269,6 +297,42 @@ const ViewCase: React.FC = () => {
                     Cancel
                   </button>
                   <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={isCreating}>
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Modal for adding new verification */}
+        {closeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">Close Case</h2>
+              <form className="w-full" onSubmit={handleSubmit(onClose)}>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
+                  <div className="flex flex-col col-span-1 gap-2">
+                    <label>Status{errors.status && <span className="text-red-500">*</span>}</label>
+                    <select className="p-2 border-gray-500 rounded-lg border-2" {...register("status", { required: true })} defaultValue="">
+                      <option value="" disabled>
+                        Select Status
+                      </option>
+                      <option value={Status.POSITIVE}>POSITIVE</option>
+                      <option value={Status.NEGATIVE}>NEGATIVE</option>
+                      <option value={Status.CANNOTVERIFY}>CANNOT VERIFY</option>
+                      <option value={Status.REFER}>REFER</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setCloseModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-300 rounded-lg hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={isClosing}>
                     Submit
                   </button>
                 </div>

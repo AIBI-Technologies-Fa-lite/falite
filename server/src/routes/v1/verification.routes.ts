@@ -6,7 +6,7 @@ import {
   ofResponse,
   submitVerification
 } from "../../controllers/verifications/verification.controller";
-import { createCase, getCases, getCaseById } from "../../controllers/verifications/case.controller";
+import { createCase, getCases, getCaseById, closeCase } from "../../controllers/verifications/case.controller";
 import { roleMiddleware } from "../../middlewares/auth";
 import { Role } from "@prisma/client";
 import { upload } from "../../config";
@@ -20,5 +20,6 @@ verificationRouter.post("/submit", upload.array("files"), roleMiddleware([Role.O
 verificationRouter.post("/case", roleMiddleware([Role.CRE]), createCase);
 verificationRouter.get("/case", roleMiddleware([Role.SUPERVISOR, Role.CRE]), getCases);
 verificationRouter.get("/case/:id", roleMiddleware([Role.CRE, Role.SUPERVISOR]), getCaseById);
+verificationRouter.put("/case/:id", roleMiddleware([Role.CRE]), closeCase);
 verificationRouter.get("/:id", getVerificationById);
 export default verificationRouter;
