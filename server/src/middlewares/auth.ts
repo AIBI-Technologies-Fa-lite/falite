@@ -28,7 +28,7 @@ export const verifyJWT = async (req: Request, res: Response, next: NextFunction)
     // Fetch the user based on the decoded token information (assuming the token contains the user ID)
     const user = await prisma.user.findUnique({
       where: {
-        id: verified.userId // Adjust this based on your token payload structure
+        id: verified.userId 
       },
       select: {
         id: true,
@@ -53,7 +53,6 @@ export const verifyJWT = async (req: Request, res: Response, next: NextFunction)
 
 export function roleMiddleware(allowedRoles: Role[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Assuming the user's role is available in req.user.role
     const userRole = (req as CustomRequest).user.role;
     // Check if the user's role is in the list of allowed roles
     if (allowedRoles.includes(userRole)) {
