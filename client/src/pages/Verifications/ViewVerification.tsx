@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { RootState } from "src/store";
-import { useGetVerificationByIdQuery, useSendOfResponseMutation } from "@api/verificationApi";
+import { useGetVerificationByIdQuery, useSendOfResponseMutation, useSubmitVerificationMutation } from "@api/verificationApi";
 import { useGetEmployeeByRoleQuery } from "@api/userApi";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import CaseDetails from "@components/CaseDetails";
 import { convertToIST } from "@utils/time";
 import { useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
+import { PathString, useForm } from "react-hook-form";
 import ShowDocuments from "@components/ShowDocuments";
 import { Role, Status } from "@constants/enum";
 
@@ -73,13 +73,14 @@ const ReassignModal = ({ isOpen, onClose, onSubmit, ofData, reErrors, reRegister
 };
 
 const ViewVerification = () => {
-  const { data: ofData, isLoading: isLoadingOf } = useGetEmployeeByRoleQuery({ role: Role.OF });
+  const { data: ofData } = useGetEmployeeByRoleQuery({ role: Role.OF });
   const navigate = useNavigate();
   const { id } = useParams();
   const role = useSelector((state: RootState) => state.auth.user?.role);
 
   const { data, error, isLoading, refetch } = useGetVerificationByIdQuery({ id });
   const [ofResponse] = useSendOfResponseMutation();
+  const [submitResponse] = useSubmitVerificationMutation();
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [reassignModal, setReassignModal] = useState(false);
@@ -130,35 +131,56 @@ const ViewVerification = () => {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event) => {
     const files = Array.from(event.target.files || []);
-    const names = files.map((file) => file.name);
+    const names = files.map((file: any) => file.name);
     setFileNames(names);
   };
 
   const onSubmit = async (data) => {
-    console.log(data);
     try {
-      const position = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject));
-      const { latitude, longitude } = position.coords;
-      const formData = new FormData();
-      Object.keys(data).forEach((key) => {
-        if (key !== "files") {
-          formData.append(key, data[key]);
-        }
-      });
+      const submitData = new FormData();
 
+      // Append files to FormData
       if (data.files && data.files.length > 0) {
-        Array.from(data.files).forEach((file) => formData.append("files", file));
+        Array.from(data.files).forEach((file) => {
+          if (file instanceof Blob || file instanceof File) {
+            submitData.append("files", file);
+          }
+        });
       }
 
-      formData.append("lat", latitude);
-      formData.append("long", longitude);
-      formData.append("id", id);
-      reset();
-      setFileNames([]);
-      toast.success("Verification Submitted successfully");
+      // Add other required fields
+      submitData.append("feRemarks", data.remarks);
+      submitData.append("status", data.status);
+      submitData.append("id", id as string);
+
+      // Get geolocation data and then call the mutation
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          submitData.append("location[lat]", position.coords.latitude.toString());
+          submitData.append("location[long]", position.coords.longitude.toString());
+
+          try {
+            // Call mutation with formData and id
+            await submitResponse(submitData).unwrap();
+            toast.success("Case submitted successfully.");
+            navigate("/verification");
+
+            reset();
+            setFileNames([]);
+          } catch (err) {
+            console.error("Submit error:", err);
+            toast.error("Failed to update verification");
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast.error("Unable to retrieve location. Please try again.");
+        }
+      );
     } catch (err) {
+      console.error("Unexpected error:", err);
       toast.error("Failed to update verification");
     }
   };
@@ -174,7 +196,7 @@ const ViewVerification = () => {
   if (!data && error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p>An error occurred: </p>
+        <p>An error occurred while loading the data.</p>
       </div>
     );
   }
@@ -187,7 +209,9 @@ const ViewVerification = () => {
 
   return (
     <div className="flex flex-col w-full gap-6">
+      {/* Verification Details and Actions */}
       <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4">
+        {/* Details Display */}
         <hr className="md:col-span-3" />
         <div className="flex flex-col justify-between gap-2 md:col-span-3 md:flex-row">
           <p className="text-2xl font-bold text-gray-500 md:col-span-3">Verification Details</p>
@@ -209,7 +233,7 @@ const ViewVerification = () => {
               className={`font-bold ${
                 verification.status === Status.PENDING
                   ? "text-orange-500"
-                  : verification.statu === Status.REJECTED
+                  : verification.status === Status.REJECTED
                   ? "text-red-500"
                   : "text-green-500"
               }`}
@@ -225,28 +249,33 @@ const ViewVerification = () => {
           )}
         </div>
         <hr className="md:col-span-3" />
-        {caseData?.employee?.firstName && <CaseDetails label={"CRE"} value={caseData.employee.firstName} />}
-        {caseData?.applicantName && <CaseDetails label={"Applicant Name"} value={caseData.applicantName} />}
-        {caseData?.coApplicantName && <CaseDetails label={"Co Applicant Name"} value={caseData.coApplicantName} />}
-        {caseData?.businessName && <CaseDetails label={"Business Name"} value={caseData.businessName} />}
-        {caseData?.product && <CaseDetails label={"Product"} value={caseData.product} />}
-        {caseData?.clientName && <CaseDetails label={"Client"} value={caseData.clientName} />}
 
-        <CaseDetails label={"Verification Type"} value={verification.verificationType.name} />
-        <CaseDetails label={"OF"} value={`${verification.of.firstName} ${verification.of.lastName}`} />
-        <CaseDetails label={"Address"} value={verification.address} />
-        <CaseDetails label={"Pincode"} value={verification.pincode} />
-        <CaseDetails label={"CRE Remarks"} value={verification.creRemarks} />
-        {verification.feRemarks && <CaseDetails label={"OF Remarks"} value={verification.feRemarks} />}
-        <CaseDetails label={"Assigned At"} value={convertToIST(verification.createdAt)} />
-        {verification.createdAt !== verification.updatedAt && <CaseDetails label={"Updated At"} value={convertToIST(verification.updatedAt)} />}
+        {/* Case Data Details */}
+        {caseData?.employee?.firstName && <CaseDetails label="CRE" value={caseData.employee.firstName} />}
+        {caseData?.applicantName && <CaseDetails label="Applicant Name" value={caseData.applicantName} />}
+        {caseData?.coApplicantName && <CaseDetails label="Co Applicant Name" value={caseData.coApplicantName} />}
+        {caseData?.businessName && <CaseDetails label="Business Name" value={caseData.businessName} />}
+        {caseData?.product && <CaseDetails label="Product" value={caseData.product} />}
+        {caseData?.clientName && <CaseDetails label="Client" value={caseData.clientName} />}
 
+        <CaseDetails label="Verification Type" value={verification.verificationType.name} />
+        <CaseDetails label="OF" value={`${verification.of.firstName} ${verification.of.lastName}`} />
+        <CaseDetails label="Address" value={verification.address} />
+        <CaseDetails label="Pincode" value={verification.pincode} />
+        <CaseDetails label="CRE Remarks" value={verification.creRemarks} />
+        {verification.feRemarks && <CaseDetails label="OF Remarks" value={verification.feRemarks} />}
+        <CaseDetails label="Assigned At" value={convertToIST(verification.createdAt)} />
+        {verification.createdAt !== verification.updatedAt && <CaseDetails label="Updated At" value={convertToIST(verification.updatedAt)} />}
+
+        {/* Documents Display */}
         {verification.documents.length > 0 && <ShowDocuments canSeeCREDocuments={canSeeCREDocuments} documents={verification.documents} />}
       </div>
 
-      {verification.status === Status.ONGOING && (
+      {/* Submission Form */}
+      {verification.status === Status.ONGOING && role === "OF" && (
         <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
+            {/* File Upload */}
             <div className="flex flex-col col-span-1 gap-2">
               <label>File {errors.files && <span className="text-red-500">*</span>}</label>
               <input
@@ -257,11 +286,12 @@ const ViewVerification = () => {
                   validate: (files) => files.length <= 6 || "You can only upload up to 6 files."
                 })}
                 onChange={handleFileChange}
-                className={`w-full overflow-clip rounded-lg border-2 border-gray-500 file:mr-4 file:cursor-pointer file:border-none file:bg-purple-100 file:px-4 file:py-2 file:font-medium disabled:cursor-not-allowed disabled:opacity-75`}
+                className="w-full overflow-clip rounded-lg border-2 border-gray-500 file:mr-4 file:cursor-pointer file:border-none file:bg-purple-100 file:px-4 file:py-2 file:font-medium disabled:cursor-not-allowed disabled:opacity-75"
               />
-              {errors.files && <span className="text-red-500">{}</span>}
+              {errors.files && <span className="text-red-500">{errors.files.message?.toString()}</span>}
             </div>
 
+            {/* Uploaded File List */}
             <div className="flex flex-col col-span-1 gap-2">
               <label>Uploaded Files:</label>
               <ul className="pl-4 text-xs list-disc">
@@ -272,21 +302,26 @@ const ViewVerification = () => {
                 ))}
               </ul>
             </div>
+
+            {/* Status Selection */}
             <div className="flex flex-col col-span-1 gap-2">
-              <label>status {errors.status ? <span className="text-red-500">*</span> : null}</label>
-              <select {...register("status", { required: true })} className={`p-2 border-gray-500 rounded-lg border-2`}>
+              <label>Status {errors.status && <span className="text-red-500">*</span>}</label>
+              <select {...register("status", { required: true })} className="p-2 border-gray-500 rounded-lg border-2">
                 <option value={Status.POSITIVE}>POSITIVE</option>
                 <option value={Status.NEGATIVE}>NEGATIVE</option>
                 <option value={Status.CANNOTVERIFY}>CANNOT VERIFY</option>
                 <option value={Status.REFER}>REFER</option>
               </select>
             </div>
+
+            {/* Remarks Field */}
             <div className="flex flex-col gap-2 md:col-span-2">
               <label>Remarks {errors.remarks && <span className="text-red-500">*</span>}</label>
-              <textarea {...register("remarks", { required: true })} className={`p-2 border-gray-500 rounded-lg border-2`} placeholder="Notes" />
+              <textarea {...register("remarks", { required: true })} className="p-2 border-gray-500 rounded-lg border-2" placeholder="Notes" />
               {errors.remarks && <span className="text-red-500">Remarks are required.</span>}
             </div>
           </div>
+
           <button
             type="submit"
             className="w-full px-4 py-2 mt-6 mb-6 text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto"
@@ -296,6 +331,7 @@ const ViewVerification = () => {
         </form>
       )}
 
+      {/* Modals for Reject and Reassign */}
       <RejectModal
         isOpen={isRejectModalOpen}
         onClose={() => setIsRejectModalOpen(false)}
@@ -308,7 +344,7 @@ const ViewVerification = () => {
         isOpen={reassignModal}
         onClose={() => setReassignModal(false)}
         onSubmit={reHandleSubmit((data) => {
-          console.log(data);
+          console.log(data); // Implement actual reassign logic here
         })}
         ofData={ofData}
         reErrors={reErrors}

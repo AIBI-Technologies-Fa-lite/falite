@@ -272,121 +272,105 @@ export const ofResponse = async (req: Request, res: Response) => {
   }
 };
 export const submitVerification = async (req: Request, res: Response) => {
-  const { id } = req.params;
   const files = req.files as Express.Multer.File[];
-  const { feRemarks, status, location } = req.body as { feRemarks: string; status: Status; location: { lat: number; long: number } };
+  const { feRemarks, status, location, id } = req.body as { feRemarks: string; status: Status; location: { lat: string; long: string }; id: any };
   const user = (req as CustomRequest).user;
 
-  // get the current location from user
   try {
-    const transaction = await prisma.$transaction(async (tx) => {
-      //Step 1: Add New location
-      const coords = await tx.coordinates.create({
-        data: {
-          latitude: location.lat,
-          longitude: location.long
-        }
-      });
-      //Step 2: calculate the distance
-      const origin = await tx.coordinates.findUnique({
-        where: {
-          id: user.originId
-        }
-      });
-      if (!origin) {
-        throw new Error("Origin coordinates not found");
-      }
-
-      const response = await directionsClient
-        .getDirections({
-          waypoints: [{ coordinates: [origin.longitude, origin.longitude] }, { coordinates: [coords.longitude, coords.latitude] }],
-          profile: "driving",
-          geometries: "geojson"
-        })
-        .send();
-
-      const distanceInMeters = response.body.routes[0].distance; // distance in meters
-      const distanceInKilometers = (distanceInMeters / 1000).toFixed(1); // convert meters to kilometers and round to 1 decimal place
-
-      // Step 3: Update Verification record
-      const verification = await tx.verification.update({
-        where: { id: parseInt(id) },
-        data: {
-          feRemarks,
-          status,
-          destination: { connect: { id: coords.id } },
-          distance: parseFloat(distanceInKilometers),
-          final: 1
-        },
-        select: {
-          id: true,
-          case: {
-            select: { id: true, employeeId: true }
-          }
-        }
-      });
-
-      // Step 4: Upload files and create Document records
-      for (const file of files) {
-        const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
-        const blob = bucket.file(fileName);
-
-        const blobStream = blob.createWriteStream({
-          resumable: false
-        });
-
-        await new Promise<void>((resolve, reject) => {
-          blobStream.on("finish", resolve).on("error", reject).end(file.buffer);
-        });
-
-        const publicUrl = `${fileName}`;
-        await tx.document.create({
+    // Start transaction with increased timeout
+    const transaction = await prisma.$transaction(
+      async (tx) => {
+        // Step 1: Add New location
+        const coords = await tx.coordinates.create({
           data: {
-            verification: {
-              connect: {
-                id: verification.id
-              }
-            },
-            employee: {
-              connect: {
-                id: user.id
-              }
-            },
-            name: publicUrl
+            latitude: parseFloat(location.lat),
+            longitude: parseFloat(location.long)
           }
         });
-      }
-      // Step 5: Check all verification completed and update the case
-      const caseData = await tx.commonData.findUnique({
-        where: {
-          id: verification.case.id
-        },
-        include: { verifications: true }
-      });
 
-      const completed = caseData?.verifications.every((v) => v.final == 1);
-      if (completed) {
-        await tx.commonData.update({
+        // Step 2: Calculate the distance
+        const origin = await tx.coordinates.findUnique({
+          where: { id: user.startId }
+        });
+        if (!origin) throw new Error("Origin coordinates not found");
+
+        const response = await directionsClient
+          .getDirections({
+            waypoints: [{ coordinates: [origin.longitude, origin.latitude] }, { coordinates: [coords.longitude, coords.latitude] }],
+            profile: "driving",
+            geometries: "geojson"
+          })
+          .send();
+
+        const distanceInMeters = response.body.routes[0]?.distance || 0;
+        const distanceInKilometers = (distanceInMeters / 1000).toFixed(1);
+
+        // Step 3: Update Verification record
+        const verification = await tx.verification.update({
+          where: { id: parseInt(id) },
+          data: {
+            feRemarks,
+            status,
+            destination: { connect: { id: coords.id } },
+            distance: parseFloat(distanceInKilometers),
+            final: 1
+          },
+          select: {
+            id: true,
+            case: { select: { id: true, employeeId: true } }
+          }
+        });
+
+        // Step 4: Check all verifications completed and update case status if needed
+        const caseData = await tx.commonData.findUnique({
           where: { id: verification.case.id },
-          data: {
-            status: Status.REVIEW
-          }
+          include: { verifications: true }
         });
 
-        sendNotification("Case Review", verification.case.employeeId, NotificationType.CASE, verification.case.id);
-      }
-      sendNotification("Verification Completed", verification.case.employeeId, NotificationType.CASE, verification.case.id);
-      await tx.user.update({
-        where: { id: user.id },
+        const completed = caseData?.verifications.every((v) => v.final === 1);
+        if (completed) {
+          await tx.commonData.update({
+            where: { id: verification.case.id },
+            data: { status: Status.REVIEW }
+          });
+          sendNotification("Case Review", verification.case.employeeId, NotificationType.CASE, verification.case.id);
+        }
+
+        // Update user start location
+        await tx.user.update({
+          where: { id: user.id },
+          data: { start: { connect: { id: coords.id } } }
+        });
+
+        return verification;
+      },
+      { timeout: 20000 } // Increased timeout to 20 seconds
+    );
+
+    // Step 5: Upload files and create Document records (moved outside transaction)
+    for (const file of files) {
+      const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+      const blob = bucket.file(fileName);
+      const blobStream = blob.createWriteStream({ resumable: false });
+
+      await new Promise<void>((resolve, reject) => {
+        blobStream.on("finish", resolve).on("error", reject).end(file.buffer);
+      });
+
+      const publicUrl = `${fileName}`;
+      await prisma.document.create({
         data: {
-          start: { connect: { id: coords.id } }
+          verification: { connect: { id: transaction.id } },
+          employee: { connect: { id: user.id } },
+          name: publicUrl
         }
       });
-      return verification;
-    });
+    }
+
+    sendNotification("Verification Completed", transaction.case.employeeId, NotificationType.CASE, transaction.case.id);
     apiResponse.success(res, {});
   } catch (err) {
-    console.log(err);
+    console.error(err);
     apiResponse.error(res);
   }
 };

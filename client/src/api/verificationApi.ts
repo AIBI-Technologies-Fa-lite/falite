@@ -51,6 +51,14 @@ const verificationApi = authApiSlice.injectEndpoints({
         body: { reject, remarks }
       }),
       invalidatesTags: ["verifications"]
+    }),
+    submitVerification: builder.mutation({
+      query: (formData) => ({
+        url: `/verification/submit`,
+        method: "POST",
+        body: formData
+      }),
+      invalidatesTags: ["verifications"]
     })
   })
 });
@@ -62,5 +70,6 @@ export const {
   useGetCasesQuery,
   useGetAllVerificationsQuery,
   useGetVerificationByIdQuery,
-  useSendOfResponseMutation
+  useSendOfResponseMutation,
+  useSubmitVerificationMutation
 } = verificationApi;
