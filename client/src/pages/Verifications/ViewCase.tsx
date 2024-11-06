@@ -307,9 +307,9 @@ const ViewCase: React.FC = () => {
         {/* Modal for adding new verification */}
         {closeModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+            <div className="p-6 bg-white rounded-lg shadow-lg">
               <h2 className="text-xl font-semibold mb-4">Close Case</h2>
-              <form className="w-full" onSubmit={handleSubmit(onClose)}>
+              <form className="" onSubmit={handleSubmit(onClose)}>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
                   <div className="flex flex-col col-span-1 gap-2">
                     <label>Status{errors.status && <span className="text-red-500">*</span>}</label>
