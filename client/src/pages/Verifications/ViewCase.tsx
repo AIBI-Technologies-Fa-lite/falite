@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useGetCaseByIdQuery, useCreateVerificationMutation, useCloseCaseMutation } from "@api/verificationApi";
+import { useGetCaseByIdQuery, useCreateVerificationMutation, useCloseCaseMutation, useReopenVerificationMutation } from "@api/verificationApi";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -48,9 +48,12 @@ const ViewCase: React.FC = () => {
   const { data: ofData, error: ofError } = useGetEmployeeByRoleQuery({ role: Role.OF });
   const [showModal, setShowModal] = useState(false);
   const [closeModal, setCloseModal] = useState(false);
+  const [reopenModal, setReopenModal] = useState(false);
+  const [reopenId, setReopenId] = useState(null);
   const [fileNames, setFileNames] = useState<string[]>([]); // State to track file names
 
   const [createVerification, { isLoading: isCreating, error: createError }] = useCreateVerificationMutation();
+  const [reopenVerification, { isLoading: isReopening, error: reopenError }] = useReopenVerificationMutation();
   const [closeCase, { isLoading: isClosing, error: closeError }] = useCloseCaseMutation();
 
   const {
@@ -66,7 +69,21 @@ const ViewCase: React.FC = () => {
     if (ofError) toast.error("An error occurred while fetching employees.");
     if (createError) toast.error("Failed to create verification.");
   }, [error, vtError, ofError, createError]);
-
+  const onReopen = async (data: any) => {
+    if (!reopenId) {
+      toast.error("Case ID is missing.");
+      return;
+    }
+    try {
+      await reopenVerification({ ...data, id: reopenId }).unwrap();
+      toast.success("Verification Reopened Successfully!");
+      setReopenModal(false);
+      reset();
+      refetch();
+    } catch (err) {
+      toast.error("Failed to Close. Please try again.");
+    }
+  };
   const onClose = async (data: any) => {
     if (!id) {
       toast.error("Case ID is missing.");
@@ -158,7 +175,7 @@ const ViewCase: React.FC = () => {
           {verifications.length ? (
             <div className="mb-6 md:col-span-3">
               {verifications.map((verification: Verification) => (
-                <DisplayVerification key={verification.id} verification={verification} />
+                <DisplayVerification key={verification.id} verification={verification} reopen={setReopenModal} setvid={setReopenId} />
               ))}
             </div>
           ) : (
@@ -333,6 +350,46 @@ const ViewCase: React.FC = () => {
                     Cancel
                   </button>
                   <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={isClosing}>
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {reopenModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="p-6 bg-white rounded-lg shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">Close Case</h2>
+              <form className="" onSubmit={handleSubmit(onReopen)}>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
+                  <div className="flex flex-col gap-2 md:col-span-1">
+                    <label>OF {errors.empId && <span className="text-red-500">*</span>}</label>
+                    <select className="p-2 border-gray-500 rounded-lg border-2" {...register("empId", { required: true })} defaultValue="">
+                      <option value="" disabled>
+                        Select OF
+                      </option>
+                      {ofData && ofData.data.employees && ofData.data.employees.length > 0 ? (
+                        ofData.data.employees.map((employee: Employee) => (
+                          <option key={employee.id} value={employee.id}>
+                            {employee.firstName} {employee.lastName}
+                          </option>
+                        ))
+                      ) : (
+                        <option disabled>No Employees Available</option>
+                      )}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setReopenModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-300 rounded-lg hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={isReopening}>
                     Submit
                   </button>
                 </div>

@@ -379,7 +379,6 @@ export const reopenVerification = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { of_id } = req.body as { of_id: number };
   const user = (req as CustomRequest).user;
-
   try {
     const transaction = await prisma.$transaction(async (tx) => {
       const deleteDocs = await prisma.document.deleteMany({ where: { verificationId: parseInt(id), employeeId: { not: user.id } } });

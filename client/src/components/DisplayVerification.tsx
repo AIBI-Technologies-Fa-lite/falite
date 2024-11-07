@@ -7,9 +7,11 @@ import { Verification } from "src/types";
 
 interface DisplayVerificationProps {
   verification: Verification;
+  reopen?: any;
+  setvid?: any;
 }
 
-const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification }) => {
+const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification, reopen, setvid }) => {
   return (
     <div className="grid gap-4 mt-6 md:col-span-3 md:grid-cols-3">
       <div className="flex items-center justify-between border-t-2 border-b-2 border-purple-100 md:col-span-3">
@@ -35,7 +37,13 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification 
             : "Completed"}
         </p>
 
-        <div className="md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer">
+        <div
+          className="md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer"
+          onClick={() => {
+            if (reopen) reopen(true);
+            if (setvid) setvid(verification.id);
+          }}
+        >
           Reopen
         </div>
       </div>

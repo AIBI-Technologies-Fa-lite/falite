@@ -4,7 +4,8 @@ import {
   getVerifications,
   getVerificationById,
   ofResponse,
-  submitVerification
+  submitVerification,
+  reopenVerification
 } from "../../controllers/verifications/verification.controller";
 import { createCase, getCases, getCaseById, closeCase } from "../../controllers/verifications/case.controller";
 import { roleMiddleware } from "../../middlewares/auth";
@@ -15,6 +16,7 @@ const verificationRouter = Router();
 
 verificationRouter.post("/", roleMiddleware([Role.CRE]), upload.array("files"), createVerification);
 verificationRouter.get("/", roleMiddleware([Role.ADMIN, Role.OF, Role.SUPERVISOR]), getVerifications);
+verificationRouter.put("/reopen/:id", roleMiddleware([Role.SUPERVISOR, Role.CRE]), reopenVerification);
 verificationRouter.put("/of/:id", roleMiddleware([Role.OF]), ofResponse);
 verificationRouter.post("/submit", upload.array("files"), roleMiddleware([Role.OF]), submitVerification);
 verificationRouter.post("/case", roleMiddleware([Role.CRE]), createCase);

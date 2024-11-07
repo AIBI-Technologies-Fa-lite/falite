@@ -66,6 +66,13 @@ const verificationApi = authApiSlice.injectEndpoints({
         method: "PUT",
         body: { status }
       })
+    }),
+    reopenVerification: builder.mutation({
+      query: ({ empId, id }) => ({
+        url: `/verification/reopen/${id}`,
+        method: "PUT",
+        body: { of_id: parseInt(empId) }
+      })
     })
   })
 });
@@ -79,5 +86,6 @@ export const {
   useGetVerificationByIdQuery,
   useSendOfResponseMutation,
   useSubmitVerificationMutation,
-  useCloseCaseMutation
+  useCloseCaseMutation,
+  useReopenVerificationMutation
 } = verificationApi;
