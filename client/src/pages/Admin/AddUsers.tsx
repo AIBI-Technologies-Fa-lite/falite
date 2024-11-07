@@ -33,7 +33,6 @@ const AddUsers = () => {
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
 
   // Transform branch data into a format react-select expects
-  console.log(branchData);
   if (!branchData?.data.branches) {
     return <div>Please Add Branches First</div>;
   }

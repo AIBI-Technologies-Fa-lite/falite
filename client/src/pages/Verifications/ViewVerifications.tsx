@@ -45,7 +45,6 @@ const ViewVerifications: React.FC = () => {
     }
   }, [error]);
 
-  console.log(data);
 
   const columns = useMemo(() => {
     const commonColumns = [
@@ -114,10 +113,6 @@ const ViewVerifications: React.FC = () => {
 
     return commonColumns;
   }, [navigate, role]);
-
-  useEffect(() => {
-    console.log("Total pages from API:", data?.meta.pages);
-  }, [data]);
 
   // Update `pageCount` in `useReactTable`
   const table = useReactTable({
