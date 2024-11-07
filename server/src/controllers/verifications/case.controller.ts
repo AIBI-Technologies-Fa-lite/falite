@@ -147,12 +147,23 @@ export const closeCase = async (req: Request, res: Response) => {
   const { status } = req.body as { status: Status };
 
   try {
+    let data: any = {
+      status
+    };
+    if (status === Status.POSITIVE || status === Status.NEGATIVE) {
+      data = {
+        ...data,
+        final: 1
+      };
+    } else {
+      data = {
+        ...data,
+        final: 0
+      };
+    }
     const updatedCase = await prisma.commonData.update({
       where: { id: parseInt(id) },
-      data: {
-        status: status,
-        final: 1
-      }
+      data: data
     });
     apiResponse.success(res, {});
   } catch (err) {
