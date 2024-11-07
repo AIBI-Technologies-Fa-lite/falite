@@ -25,7 +25,7 @@ const ViewCases: React.FC = () => {
   const [debouncedSearchInput, setDebouncedSearchInput] = useState<string>(searchInput);
   const [searchColumn, setSearchColumn] = useState<string>("caseNumber");
   const [debouncedSearchColumn, setDebouncedSearchColumn] = useState<string>(searchColumn);
-  const [statusInput, setStatusInput] = useState<number>(-1);
+  const [statusInput, setStatusInput] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, _] = useState<number>(10);
@@ -171,15 +171,19 @@ const ViewCases: React.FC = () => {
         </div>
         <select
           value={statusInput}
-          onChange={(e) => setStatusInput(Number(e.target.value))}
+          onChange={(e) => setStatusInput(e.target.value)}
           className="px-2 py-1 border border-gray-300 rounded-md"
           aria-label="Select status to filter"
         >
-          <option value="-1">All</option>
-          <option value="0">Assign Verifications</option>
-          <option value="1">In Progress</option>
-          <option value="2">CRE Review</option>
-          <option value="3">Completed</option>
+          <option value="">All</option>
+          <option value="ASSIGN">Assign Verifications</option>
+          <option value="PENDING">In Progress</option>
+          <option value="REASSIGN">Re Assign</option>
+          <option value="REVIEW">CRE Review</option>
+          <option value="POSITIVE">Positive</option>
+          <option value="NEGATIVE">Negative</option>
+          <option value="CANNOTVERIFY">Cannot Verify</option>
+          <option value="REFER">Refer</option>
         </select>
       </div>
 

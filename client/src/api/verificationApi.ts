@@ -10,10 +10,10 @@ const verificationApi = authApiSlice.injectEndpoints({
       })
     }),
     getCases: builder.query({
-      query: ({ page = 1, limit = 10, search, order, searchColumn }) => ({
+      query: ({ page = 1, limit = 10, search, order, searchColumn, status }) => ({
         url: "/verification/case",
         method: "GET",
-        params: { page, limit, search, searchColumn, order }
+        params: { page, limit, search, searchColumn, order, status }
       }),
       providesTags: ["cases"]
     }),

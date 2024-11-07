@@ -26,18 +26,27 @@ export const getCases = async (req: Request, res: Response) => {
     limit = "10",
     search = "",
     searchColumn = "",
+    status = "",
     order = "desc"
   } = req.query as {
     page?: string;
     limit?: string;
     search?: string;
-    searchColumn?: "name" | "branchCode";
+    searchColumn?: "caseNumber" | "applicantName";
+    status: "" | "ASSIGN" | "PENDING" | "REVIEW" | "CANNOTVERIFY" | "POSITIVE" | "NEGATIVE" | "REFER" | "REASSIGN";
     order?: "asc" | "desc";
   };
 
   const user = (req as CustomRequest).user;
   let whereClause: any = {};
-
+  if (searchColumn === "caseNumber") {
+    whereClause.caseNumber = { contains: search };
+  } else if (searchColumn === "applicantName") {
+    whereClause.applicantName = { contains: search, mode: "insensitive" };
+  }
+  if (status) {
+    whereClause.status = status;
+  }
   // Determine the filtering based on the user's role
   if (user.role === Role.CRE) {
     // If the user is a CRE, filter cases by employeeId
