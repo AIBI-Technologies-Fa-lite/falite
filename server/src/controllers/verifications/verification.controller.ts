@@ -116,20 +116,19 @@ export const getVerifications = async (req: Request, res: Response) => {
     const skipAmount: number = (pageNumber - 1) * pageSize;
     const statusFilter: number = parseInt(status, 10);
     let whereClause: any = {};
-
+    console.log(user);
     // Filter based on user role
-    if (user.role === "ADMIN") {
-      whereClause.of = { organizationId: user.organizationId };
-    } else if (user.role === "SUPERVISOR") {
-      whereClause.of = { supervisorId: user.id };
+    if (user.role === "SUPERVISOR") {
+      // Extract branch IDs from user.branches
+      const userBranchIds = user.branches.map((branch: { id: number }) => branch.id);
+      whereClause.of = {
+        branches: {
+          some: { id: { in: userBranchIds } }
+        }
+      };
     } else {
       whereClause.of_id = user.id;
       whereClause.status = { not: Status.REJECTED };
-    }
-
-    // Apply status filter if specified
-    if (statusFilter >= 0) {
-      whereClause.final = statusFilter;
     }
 
     // Search condition based on the search column

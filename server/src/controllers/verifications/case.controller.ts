@@ -47,6 +47,9 @@ export const getCases = async (req: Request, res: Response) => {
   if (status) {
     whereClause.status = status;
   }
+  if (status === "CANNOTVERIFY" || status === "REFER") {
+    whereClause.final = 0;
+  }
   // Determine the filtering based on the user's role
   if (user.role === Role.CRE) {
     // If the user is a CRE, filter cases by employeeId

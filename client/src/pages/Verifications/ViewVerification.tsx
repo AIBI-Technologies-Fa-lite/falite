@@ -224,28 +224,26 @@ const ViewVerification = () => {
                 Reject
               </button>
             </div>
-          ) : role !== "OF" ? (
-            <button className="px-2 py-1 text-white bg-purple-500 rounded-lg" onClick={() => setReassignModal(true)}>
-              Re-Assign
-            </button>
           ) : (
-            <p
-              className={`font-bold ${
-                verification.status === Status.PENDING
-                  ? "text-orange-500"
+            role !== "OF" && (
+              <p
+                className={`font-bold ${
+                  verification.status === Status.PENDING
+                    ? "text-orange-500"
+                    : verification.status === Status.REJECTED
+                    ? "text-red-500"
+                    : "text-green-500"
+                }`}
+              >
+                {verification.status === Status.PENDING
+                  ? "Pending"
                   : verification.status === Status.REJECTED
-                  ? "text-red-500"
-                  : "text-green-500"
-              }`}
-            >
-              {verification.status === Status.PENDING
-                ? "Pending"
-                : verification.status === Status.REJECTED
-                ? "Rejected"
-                : verification.status === Status.ONGOING
-                ? "Ongoing"
-                : "Complete"}
-            </p>
+                  ? "Rejected"
+                  : verification.status === Status.ONGOING
+                  ? "Ongoing"
+                  : "Complete"}
+              </p>
+            )
           )}
         </div>
         <hr className="md:col-span-3" />
