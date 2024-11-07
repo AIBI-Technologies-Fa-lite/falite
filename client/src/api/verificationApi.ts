@@ -14,7 +14,8 @@ const verificationApi = authApiSlice.injectEndpoints({
         url: "/verification/case",
         method: "GET",
         params: { page, limit, search, searchColumn, order }
-      })
+      }),
+      providesTags: ["cases"]
     }),
     getCaseById: builder.query({
       query: ({ id }) => ({
@@ -65,14 +66,16 @@ const verificationApi = authApiSlice.injectEndpoints({
         url: `/verification/case/${id}`,
         method: "PUT",
         body: { status }
-      })
+      }),
+      invalidatesTags: ["cases"]
     }),
     reopenVerification: builder.mutation({
       query: ({ empId, id }) => ({
         url: `/verification/reopen/${id}`,
         method: "PUT",
         body: { of_id: parseInt(empId) }
-      })
+      }),
+      invalidatesTags: ["cases", "verifications"]
     })
   })
 });

@@ -78,8 +78,14 @@ const ViewCases: React.FC = () => {
               return <div className="text-blue-500">CRE Review</div>;
             case Status.REASSIGN:
               return <div className="text-red-500">Re Assign Verifications</div>;
-            default:
-              return <div className="text-green-500">Completed</div>;
+            case Status.POSITIVE:
+              return <div className="text-green-500">Positive</div>;
+            case Status.NEGATIVE:
+              return <div className="text-red-500">Negative</div>;
+            case Status.CANNOTVERIFY:
+              return <div className="text-orange-500">Cannot Verify</div>;
+            case Status.REFER:
+              return <div className="text-blue-500">Refer</div>;
           }
         },
         enableSorting: false

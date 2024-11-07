@@ -260,6 +260,8 @@ export const ofResponse = async (req: Request, res: Response) => {
         include: { case: { select: { employeeId: true } } }
       });
 
+      await prisma.commonData.update({ where: { id: foundVerification.caseId }, data: { status: Status.REASSIGN } });
+
       await sendNotification("Verification Rejected", foundVerification.case.employeeId, NotificationType.VERIFICATION, foundVerification.id);
       apiResponse.success(res, {});
     } else {
@@ -407,7 +409,7 @@ export const reopenVerification = async (req: Request, res: Response) => {
       const updatedCase = await tx.commonData.update({
         where: { id: updatedVerification.case.id },
         data: {
-          status: Status.ONGOING,
+          status: Status.PENDING,
           final: 0
         }
       });

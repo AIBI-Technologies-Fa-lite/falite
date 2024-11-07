@@ -22,7 +22,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const authApiSlice = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["branches", "users", "vt", "verifications"],
+  tagTypes: ["branches", "users", "vt", "verifications", "cases"],
   // @ts-ignore:
   endpoints: (builder) => ({})
 });
