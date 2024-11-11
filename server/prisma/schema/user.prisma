@@ -46,7 +46,6 @@ model User {
   dob        DateTime?
   address    String?
   email      String    @unique
-  pincodes   Int[]
   password   String
 
   deleted Boolean @default(false)
