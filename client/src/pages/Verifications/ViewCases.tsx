@@ -27,6 +27,7 @@ const ViewCases: React.FC = () => {
   const [debouncedSearchColumn, setDebouncedSearchColumn] = useState<string>(searchColumn);
   const [statusInput, setStatusInput] = useState<string>("");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [finalInput, setFinalInput] = useState<string>("0");
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, _] = useState<number>(10);
 
@@ -47,6 +48,7 @@ const ViewCases: React.FC = () => {
     search: debouncedSearchInput,
     searchColumn: debouncedSearchColumn,
     status: statusInput,
+    final: finalInput,
     order: sorting.length > 0 ? (sorting[0].desc ? "desc" : "asc") : undefined
   });
 
@@ -169,6 +171,15 @@ const ViewCases: React.FC = () => {
             <option value="applicantName">Applicant Name</option>
           </select>
         </div>
+        <select
+          className="px-2 py-1 border border-gray-300 rounded-md"
+          aria-label="Select status to filter"
+          value={finalInput}
+          onChange={(e) => setFinalInput(e.target.value)}
+        >
+          <option value="0">In Progress</option>
+          <option value="1">Completed</option>
+        </select>
         <select
           value={statusInput}
           onChange={(e) => setStatusInput(e.target.value)}

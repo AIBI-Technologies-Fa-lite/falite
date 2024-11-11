@@ -49,6 +49,7 @@ const ViewCase: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [closeModal, setCloseModal] = useState(false);
   const [reopenModal, setReopenModal] = useState(false);
+  const [reworkModal, setReworkModal] = useState(false);
   const [reopenId, setReopenId] = useState(null);
   const [fileNames, setFileNames] = useState<string[]>([]); // State to track file names
 
@@ -167,7 +168,7 @@ const ViewCase: React.FC = () => {
 
     return (
       <div className="flex flex-col w-full gap-6">
-        <DisplayCase caseData={caseData} />
+        <DisplayCase caseData={caseData} rework={setReworkModal} />
         <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4">
           <hr className="md:col-span-3" />
           <p className="text-2xl font-bold text-gray-500 md:col-span-3">Verifications</p>
@@ -339,6 +340,37 @@ const ViewCase: React.FC = () => {
                       <option value={Status.CANNOTVERIFY}>CANNOT VERIFY</option>
                       <option value={Status.REFER}>REFER</option>
                     </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setCloseModal(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-300 rounded-lg hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={isClosing}>
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {reworkModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="p-6 bg-white rounded-lg shadow-lg md:w-[40%] w-[90%]">
+              <h2 className="text-xl font-semibold mb-4">Rework Case</h2>
+              <form className="" onSubmit={handleSubmit(onClose)}>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
+                  <div className="flex flex-col gap-2 md:col-span-3">
+                    <label>Remarks {errors.supervisorRemarks && <span className="text-red-500">*</span>}</label>
+                    <textarea
+                      {...register("creRemarks", { required: true })}
+                      className="p-2 border-gray-500 rounded-lg border-2"
+                      placeholder="Notes"
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end gap-4 mt-6">

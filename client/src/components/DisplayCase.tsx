@@ -17,13 +17,25 @@ interface CaseData {
 
 interface DisplayCaseProps {
   caseData: CaseData;
+  rework: any;
 }
 
-const DisplayCase: React.FC<DisplayCaseProps> = ({ caseData }) => {
+const DisplayCase: React.FC<DisplayCaseProps> = ({ caseData, rework }) => {
   return (
     <div className="grid grid-cols-1 gap-2 md:grid-cols-3 md:gap-4">
       <hr className="md:col-span-3" />
-      <p className="text-2xl font-bold text-gray-500 md:col-span-3">Case Details</p>
+      <div className="flex justify-between">
+        <p className="text-2xl font-bold text-gray-500 md:col-span-3">Case Details</p>
+        <div
+          className="md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer"
+          onClick={() => {
+            if (rework) rework(true);
+          }}
+        >
+          Reopen
+        </div>
+      </div>
+
       <hr className="md:col-span-3" />
       {caseData.caseNumber && <CaseDetails label="Case Number" value={caseData.caseNumber} />}
       {caseData.employee?.firstName && <CaseDetails label="CRE" value={caseData.employee.firstName} />}

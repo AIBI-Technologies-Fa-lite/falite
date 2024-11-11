@@ -27,18 +27,21 @@ export const getCases = async (req: Request, res: Response) => {
     search = "",
     searchColumn = "",
     status = "",
-    order = "desc"
+    order = "desc",
+    final = "0"
   } = req.query as {
     page?: string;
     limit?: string;
     search?: string;
     searchColumn?: "caseNumber" | "applicantName";
     status: "" | "ASSIGN" | "PENDING" | "REVIEW" | "CANNOTVERIFY" | "POSITIVE" | "NEGATIVE" | "REFER" | "REASSIGN";
+    final?: string;
     order?: "asc" | "desc";
   };
 
   const user = (req as CustomRequest).user;
   let whereClause: any = {};
+  whereClause.final = parseInt(final);
   if (searchColumn === "caseNumber") {
     whereClause.caseNumber = { contains: search };
   } else if (searchColumn === "applicantName") {
@@ -46,9 +49,6 @@ export const getCases = async (req: Request, res: Response) => {
   }
   if (status) {
     whereClause.status = status;
-  }
-  if (status === "CANNOTVERIFY" || status === "REFER") {
-    whereClause.final = 0;
   }
   // Determine the filtering based on the user's role
   if (user.role === Role.CRE) {
