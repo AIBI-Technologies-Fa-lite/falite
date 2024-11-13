@@ -161,8 +161,6 @@ export const getEmployeesById = async (req: Request, res: Response) => {
         bloodGroup: true,
         document: true,
         createdAt: true,
-        reportees: true,
-        supervisor: true,
         address: true,
         phone: true,
         dob: true,

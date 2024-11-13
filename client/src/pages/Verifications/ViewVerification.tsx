@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import CaseDetails from "@components/CaseDetails";
 import { convertToIST } from "@utils/time";
 import { useSelector } from "react-redux";
-import { PathString, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import ShowDocuments from "@components/ShowDocuments";
 import { Role, Status } from "@constants/enum";
 

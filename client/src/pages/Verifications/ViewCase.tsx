@@ -193,6 +193,16 @@ const ViewCase: React.FC = () => {
                 </button>
               </div>
             )}
+            {role === "SUPERVISOR" && (caseData.status === "CANNOTVERIFY" || caseData.status === "REFER") && caseData.final === 0 && (
+              <div className="md:col-span-3 mt-8">
+                <button
+                  className="w-full px-4 py-2 text-xs text-white bg-green-600 rounded-lg hover:bg-green-400 md:w-auto mb-8"
+                  onClick={() => setCloseModal(true)}
+                >
+                  Mark As Completed
+                </button>
+              </div>
+            )}
             {role === "CRE" && caseData.final !== 1 && id && (
               <div className="md:col-span-3 mt-8">
                 <button
@@ -358,6 +368,7 @@ const ViewCase: React.FC = () => {
             </div>
           </div>
         )}
+        {/* */}
         {reworkModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="p-6 bg-white rounded-lg shadow-lg md:w-[40%] w-[90%]">

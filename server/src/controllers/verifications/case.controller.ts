@@ -183,3 +183,44 @@ export const closeCase = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const reworkCase = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { supervisorRemarks } = req.body as { supervisorRemarks: string };
+
+  try {
+    let data: any = {
+      status
+    };
+    if (status === Status.POSITIVE || status === Status.NEGATIVE) {
+      data = {
+        ...data,
+        final: 1
+      };
+    } else {
+      data = {
+        ...data,
+        final: 0
+      };
+    }
+    const updatedCase = await prisma.commonData.update({
+      where: { id: parseInt(id) },
+      data: {
+        supervisorRemarks: supervisorRemarks,
+        status: Status.REWORK
+      }
+    });
+    apiResponse.success(res, {});
+  } catch (err) {
+    console.log(err);
+    apiResponse.error(res);
+  }
+};
+export const markCompleted = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await prisma.commonData.update({ where: { id: parseInt(id) }, data: { final: 1 } });
+    apiResponse.success(res, {});
+  } catch (err) {
+    apiResponse.error(res);
+  }
+};

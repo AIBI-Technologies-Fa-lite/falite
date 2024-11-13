@@ -17,4 +17,5 @@ enum Status {
   NEGATIVE
   REASSIGN
   REVIEW
+  REWORK
 }

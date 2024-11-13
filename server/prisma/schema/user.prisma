@@ -54,11 +54,6 @@ model User {
   // Online Status
   working   Boolean    @default(false)
 
-  //Supervisor Mapping
-  supervisorId Int?
-  supervisor   User?  @relation("employeeSupervisor", fields: [supervisorId], references: [id])
-  reportees    User[] @relation("employeeSupervisor")
-
   verifications Verification[]
 
   notifications Notification[]
