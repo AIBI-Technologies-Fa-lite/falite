@@ -77,6 +77,19 @@ const verificationApi = authApiSlice.injectEndpoints({
         body: { of_id: parseInt(empId) }
       }),
       invalidatesTags: ["cases", "verifications"]
+    }),
+    reworkCase: builder.mutation({
+      query: ({ supervisorRemarks, id }) => ({
+        url: `/verification/case/rework/${id}`,
+        method: "PUT",
+        body: { supervisorRemarks }
+      })
+    }),
+    markCompleted: builder.mutation({
+      query: ({ id }) => ({
+        url: `/verification/case/complete/${id}`,
+        method: "PUT"
+      })
     })
   })
 });
