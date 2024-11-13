@@ -63,11 +63,11 @@ export const getBranches = async (req: Request, res: Response) => {
   };
 
   if (searchColumn === "name") {
-    whereClause = { ...whereClause, name: { contains: search, mode: "insensitive" } };
+    whereClause = { ...whereClause, name: { contains: search } };
   } else {
     whereClause = {
       ...whereClause,
-      code: { contains: search, mode: "insensitive" }
+      code: { contains: search }
     };
   }
 
@@ -93,6 +93,7 @@ export const getBranches = async (req: Request, res: Response) => {
 
     apiResponse.success(res, { branches }, { pages });
   } catch (err) {
+    console.log(err);
     apiResponse.error(res);
   }
 };

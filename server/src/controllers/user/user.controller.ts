@@ -106,8 +106,7 @@ export const getEmployees = async (req: Request, res: Response) => {
     organizationId: user.organizationId,
     deleted: false,
     firstName: {
-      contains: search,
-      mode: "insensitive"
+      contains: search
     }
   };
   if (role != "") {
