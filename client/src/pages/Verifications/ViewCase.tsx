@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { useGetAllVtQuery } from "@api/vtApi";
 import { useGetEmployeeByRoleQuery } from "@api/userApi";
 import { Verification } from "src/types";
+import { useReworkCaseMutation } from "@api/verificationApi";
 
 interface VerificationType {
   id: number;
@@ -56,6 +57,7 @@ const ViewCase: React.FC = () => {
   const [createVerification, { isLoading: isCreating, error: createError }] = useCreateVerificationMutation();
   const [reopenVerification, { isLoading: isReopening, error: reopenError }] = useReopenVerificationMutation();
   const [closeCase, { isLoading: isClosing, error: closeError }] = useCloseCaseMutation();
+  const [reworkCase] = useReworkCaseMutation();
 
   const {
     register,
@@ -83,6 +85,17 @@ const ViewCase: React.FC = () => {
       refetch();
     } catch (err) {
       toast.error("Failed to Close. Please try again.");
+    }
+  };
+  const onRework = async (data: any) => {
+    try {
+      await reworkCase({ supervisorRemarks: data.supervisorRemarks, id });
+      toast.success("Case Sent for Rework");
+      setReworkModal(false);
+      reset();
+      refetch();
+    } catch (err) {
+      toast.error("Failed to send Case for Rework");
     }
   };
   const onClose = async (data: any) => {
@@ -373,7 +386,7 @@ const ViewCase: React.FC = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="p-6 bg-white rounded-lg shadow-lg md:w-[40%] w-[90%]">
               <h2 className="text-xl font-semibold mb-4">Rework Case</h2>
-              <form className="" onSubmit={handleSubmit(onClose)}>
+              <form className="" onSubmit={handleSubmit(onRework)}>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
                   <div className="flex flex-col gap-2 md:col-span-3">
                     <label>Remarks {errors.supervisorRemarks && <span className="text-red-500">*</span>}</label>
@@ -387,7 +400,7 @@ const ViewCase: React.FC = () => {
                 <div className="flex justify-end gap-4 mt-6">
                   <button
                     type="button"
-                    onClick={() => setCloseModal(false)}
+                    onClick={() => setReworkModal(false)}
                     className="px-4 py-2 text-gray-700 bg-gray-300 rounded-lg hover:bg-gray-400"
                   >
                     Cancel

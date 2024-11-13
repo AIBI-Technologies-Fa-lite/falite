@@ -116,7 +116,6 @@ export const getVerifications = async (req: Request, res: Response) => {
     const skipAmount: number = (pageNumber - 1) * pageSize;
     const statusFilter: number = parseInt(status, 10);
     let whereClause: any = {};
-    console.log(user);
     // Filter based on user role
     if (user.role === "SUPERVISOR") {
       // Extract branch IDs from user.branches

@@ -2,10 +2,11 @@ import prisma from "../../db";
 import { CreateCase } from "../../dto";
 import { CustomRequest } from "../../utils/response";
 import { Request, Response } from "express";
-import { Status } from "@prisma/client";
+import { NotificationType, Status } from "@prisma/client";
 import { apiResponse } from "../../utils/response";
 import { Role } from "@prisma/client";
 import { getFile } from "../../utils/documents";
+import { sendNotification } from "../../utils/notification";
 export const createCase = async (req: Request, res: Response) => {
   const user = (req as CustomRequest).user;
   const caseData: CreateCase = req.body;
@@ -188,20 +189,6 @@ export const reworkCase = async (req: Request, res: Response) => {
   const { supervisorRemarks } = req.body as { supervisorRemarks: string };
 
   try {
-    let data: any = {
-      status
-    };
-    if (status === Status.POSITIVE || status === Status.NEGATIVE) {
-      data = {
-        ...data,
-        final: 1
-      };
-    } else {
-      data = {
-        ...data,
-        final: 0
-      };
-    }
     const updatedCase = await prisma.commonData.update({
       where: { id: parseInt(id) },
       data: {
@@ -209,6 +196,7 @@ export const reworkCase = async (req: Request, res: Response) => {
         status: Status.REWORK
       }
     });
+    await sendNotification("Case Rework", updatedCase.employeeId, NotificationType.CASE, updatedCase.id);
     apiResponse.success(res, {});
   } catch (err) {
     console.log(err);

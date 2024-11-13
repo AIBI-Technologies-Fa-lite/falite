@@ -104,5 +104,7 @@ export const {
   useSendOfResponseMutation,
   useSubmitVerificationMutation,
   useCloseCaseMutation,
-  useReopenVerificationMutation
+  useReopenVerificationMutation,
+  useReworkCaseMutation,
+  useMarkCompletedMutation
 } = verificationApi;

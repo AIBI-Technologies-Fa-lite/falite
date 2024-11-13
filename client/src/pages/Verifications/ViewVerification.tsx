@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { RootState } from "src/store";
 import { useGetVerificationByIdQuery, useSendOfResponseMutation, useSubmitVerificationMutation } from "@api/verificationApi";
-import { useGetEmployeeByRoleQuery } from "@api/userApi";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import CaseDetails from "@components/CaseDetails";
@@ -9,7 +8,7 @@ import { convertToIST } from "@utils/time";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import ShowDocuments from "@components/ShowDocuments";
-import { Role, Status } from "@constants/enum";
+import { Status } from "@constants/enum";
 
 const RejectModal = ({ isOpen, onClose, onSubmit, rejectReason, setRejectReason }) => {
   if (!isOpen) return null;
@@ -37,43 +36,7 @@ const RejectModal = ({ isOpen, onClose, onSubmit, rejectReason, setRejectReason 
   );
 };
 
-const ReassignModal = ({ isOpen, onClose, onSubmit, ofData, reErrors, reRegister }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-lg p-6 bg-white rounded-lg shadow-lg">
-        <h3 className="mb-4 text-xl font-bold">Reassign Verification</h3>
-        <form onSubmit={onSubmit}>
-          <div className="flex flex-col gap-2">
-            <label>OF {reErrors.emp && <span className="text-red-500">*</span>}</label>
-            <select className="p-2 border-gray-500 rounded-lg border-2" {...reRegister("emp", { required: true })} defaultValue="">
-              <option value="" disabled>
-                Select OF
-              </option>
-              {ofData?.data?.users.map((of) => (
-                <option key={of.id} value={of.id}>
-                  {of.firstName} {of.lastName}
-                </option>
-              ))}
-            </select>
-            {reErrors.emp && <span className="text-red-500">OF selection is required.</span>}
-          </div>
-          <div className="flex justify-end gap-4 mt-4">
-            <button type="submit" className="px-4 py-2 text-white bg-purple-500 rounded-lg">
-              Submit
-            </button>
-            <button type="button" className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg" onClick={onClose}>
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 const ViewVerification = () => {
-  const { data: ofData } = useGetEmployeeByRoleQuery({ role: Role.OF });
   const navigate = useNavigate();
   const { id } = useParams();
   const role = useSelector((state: RootState) => state.auth.user?.role);
@@ -83,7 +46,7 @@ const ViewVerification = () => {
   const [submitResponse] = useSubmitVerificationMutation();
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [reassignModal, setReassignModal] = useState(false);
+
   const [rejectReason, setRejectReason] = useState("");
   const [fileNames, setFileNames] = useState<string[]>([]);
 
@@ -92,12 +55,6 @@ const ViewVerification = () => {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm();
-  const {
-    register: reRegister,
-    handleSubmit: reHandleSubmit,
-    formState: { errors: reErrors },
-    reset: reReset
   } = useForm();
 
   useEffect(() => {
@@ -336,17 +293,6 @@ const ViewVerification = () => {
         onSubmit={handleRejectSubmit}
         rejectReason={rejectReason}
         setRejectReason={setRejectReason}
-      />
-
-      <ReassignModal
-        isOpen={reassignModal}
-        onClose={() => setReassignModal(false)}
-        onSubmit={reHandleSubmit((data) => {
-          console.log(data); // Implement actual reassign logic here
-        })}
-        ofData={ofData}
-        reErrors={reErrors}
-        reRegister={reRegister}
       />
     </div>
   );

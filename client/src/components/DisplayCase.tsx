@@ -4,6 +4,7 @@ import { convertToIST } from "@utils/time";
 import { selectUser } from "@providers/authSlice";
 import { useSelector } from "react-redux";
 interface CaseData {
+  id: number;
   caseNumber?: string;
   employee?: {
     firstName?: string;
