@@ -39,7 +39,8 @@ export const createVerification = async (req: Request, res: Response) => {
           status: Status.PENDING
         },
         select: {
-          id: true
+          id: true,
+          of_id: true
         }
       });
 
@@ -82,7 +83,8 @@ export const createVerification = async (req: Request, res: Response) => {
           status: Status.PENDING
         }
       });
-      await sendNotification("New Verification Assigned", verificationData.of_id, NotificationType.VERIFICATION, verification.id);
+
+      await sendNotification("New Verification Assigned", verification.of_id, NotificationType.VERIFICATION, verification.id);
       return verification;
     });
 
