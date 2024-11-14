@@ -3,10 +3,11 @@ import { useReactTable, getCoreRowModel, getFilteredRowModel, flexRender, Column
 import { SlSpeedometer } from "react-icons/sl";
 import { PiMapPinArea } from "react-icons/pi";
 import mapboxgl from "src/config/mapbox";
+
 // Define the types for the data structures
 interface Location {
-  long: number;
-  lat: number;
+  latitude: number;
+  longitude: number;
   updatedAt: string;
 }
 
@@ -42,11 +43,13 @@ const Main: React.FC<MainProps> = ({ users }) => {
   };
 
   const addMarkers = (
-    locations: { long: number; lat: number; name: string; updatedAt: string; checkins?: number; distance?: string }[],
+    locations: { longitude: number; latitude: number; name: string; updatedAt: string; checkins?: number; distance?: string }[],
     isDestination = false
   ) => {
     locations.forEach((location) => {
-      const marker = new mapboxgl.Marker({ color: isDestination ? "red" : "blue" }).setLngLat([location.long, location.lat]).addTo(map.current!);
+      const marker = new mapboxgl.Marker({ color: isDestination ? "red" : "blue" })
+        .setLngLat([location.longitude, location.latitude]) // Coordinates fixed to [longitude, latitude]
+        .addTo(map.current!);
 
       const popup = new mapboxgl.Popup({
         closeButton: false,
@@ -63,7 +66,7 @@ const Main: React.FC<MainProps> = ({ users }) => {
       `);
 
       marker.getElement().addEventListener("mouseenter", () => {
-        popup.setLngLat([location.long, location.lat]).addTo(map.current!);
+        popup.setLngLat([location.longitude, location.latitude]).addTo(map.current!);
       });
 
       marker.getElement().addEventListener("mouseleave", () => {
@@ -85,16 +88,18 @@ const Main: React.FC<MainProps> = ({ users }) => {
             zoom: 12
           });
 
-          // Initialize markers for all users' origins
-          addMarkers(
-            users.map((user) => ({
-              ...user.location,
-              name: `${user.firstName} ${user.lastName}`,
-              checkins: user.checkins,
-              distance: user.distance,
-              updatedAt: user.location.updatedAt
-            }))
-          );
+          map.current.on("load", () => {
+            // Initialize markers for all users' origins after the map is fully loaded
+            addMarkers(
+              users.map((user) => ({
+                ...user.location,
+                name: `${user.firstName} ${user.lastName}`,
+                checkins: user.checkins,
+                distance: user.distance,
+                updatedAt: user.location.updatedAt
+              }))
+            );
+          });
         },
         (error) => {
           console.error("Error fetching location", error);

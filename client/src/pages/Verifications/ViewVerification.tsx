@@ -62,7 +62,7 @@ const ViewVerification = () => {
     if (error) {
       toast.error("An error occurred while fetching the case.");
     }
-    if (!user?.working) {
+    if (!user?.working && user?.role === "OF") {
       toast.error("Please Start Day");
     }
   }, [error, user]);

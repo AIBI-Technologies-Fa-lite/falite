@@ -4,5 +4,5 @@ import { roleMiddleware } from "../../middlewares/auth";
 const locationRouter = Router();
 
 locationRouter.post("/", roleMiddleware(["OF"]), captureLocation);
-locationRouter.get("/checkins", getCheckins);
+locationRouter.get("/checkins", roleMiddleware(["CRE", "SUPERVISOR"]), getCheckins);
 export default locationRouter;
