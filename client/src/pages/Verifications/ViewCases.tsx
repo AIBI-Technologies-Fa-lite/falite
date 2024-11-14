@@ -88,6 +88,8 @@ const ViewCases: React.FC = () => {
               return <div className="text-orange-500">Cannot Verify</div>;
             case Status.REFER:
               return <div className="text-blue-500">Refer</div>;
+            case Status.REWORK:
+              return <div className="text-blue-500">Rework</div>;
           }
         },
         enableSorting: false

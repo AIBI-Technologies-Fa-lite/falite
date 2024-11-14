@@ -2,10 +2,13 @@ import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Sidebar from "@components/sidebar/Sidebar";
 import Top from "@components/Top";
+import Header from "@components/Header";
 const Layout = () => {
   return (
     <div className="min-h-screen">
-      <div className="md:hidden"></div>
+      <div className="md:hidden">
+        <Header />
+      </div>
       <div className="grid grid-cols-6">
         <div className="hidden md:col-span-1 md:block">
           <Sidebar />

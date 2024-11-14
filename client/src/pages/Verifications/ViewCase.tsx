@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useGetCaseByIdQuery, useCreateVerificationMutation, useCloseCaseMutation, useReopenVerificationMutation } from "@api/verificationApi";
+import {
+  useGetCaseByIdQuery,
+  useCreateVerificationMutation,
+  useCloseCaseMutation,
+  useReopenVerificationMutation,
+  useReworkCaseMutation,
+  useMarkCompletedMutation
+} from "@api/verificationApi";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -11,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { useGetAllVtQuery } from "@api/vtApi";
 import { useGetEmployeeByRoleQuery } from "@api/userApi";
 import { Verification } from "src/types";
-import { useReworkCaseMutation } from "@api/verificationApi";
 
 interface VerificationType {
   id: number;
@@ -58,6 +64,7 @@ const ViewCase: React.FC = () => {
   const [reopenVerification, { isLoading: isReopening, error: reopenError }] = useReopenVerificationMutation();
   const [closeCase, { isLoading: isClosing, error: closeError }] = useCloseCaseMutation();
   const [reworkCase] = useReworkCaseMutation();
+  const [completeCase] = useMarkCompletedMutation();
 
   const {
     register,
@@ -96,6 +103,15 @@ const ViewCase: React.FC = () => {
       refetch();
     } catch (err) {
       toast.error("Failed to send Case for Rework");
+    }
+  };
+  const onComplete = async () => {
+    try {
+      await completeCase({ id });
+      toast.success("Case Marked As Completed");
+      refetch();
+    } catch (err) {
+      toast.error("Failed to mark case for completion");
     }
   };
   const onClose = async (data: any) => {
@@ -196,7 +212,7 @@ const ViewCase: React.FC = () => {
             <div className="md:col-span-3">No Verification Found</div>
           )}
           <div className="flex gap-4">
-            {role === "CRE" && caseData.status === "REVIEW" && (
+            {role === "CRE" && (caseData.status === "REVIEW" || caseData.status === "REWORK") && (
               <div className="md:col-span-3 mt-8">
                 <button
                   className="w-full px-4 py-2 text-xs text-white bg-green-600 rounded-lg hover:bg-green-400 md:w-auto mb-8"
@@ -210,7 +226,7 @@ const ViewCase: React.FC = () => {
               <div className="md:col-span-3 mt-8">
                 <button
                   className="w-full px-4 py-2 text-xs text-white bg-green-600 rounded-lg hover:bg-green-400 md:w-auto mb-8"
-                  onClick={() => setCloseModal(true)}
+                  onClick={onComplete}
                 >
                   Mark As Completed
                 </button>

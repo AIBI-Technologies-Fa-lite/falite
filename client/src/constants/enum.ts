@@ -18,5 +18,6 @@ export enum Status {
   POSITIVE = "POSITIVE",
   NEGATIVE = "NEGATIVE",
   REASSIGN = "REASSIGN",
-  REVIEW = "REVIEW"
+  REVIEW = "REVIEW",
+  REWORK = "REWORK"
 }

@@ -1,4 +1,4 @@
-import { apiResponse, CustomRequest, statusCode } from "../../utils/response";
+import { apiResponse, CustomRequest } from "../../utils/response";
 import { Request, Response } from "express";
 import { CreateBranch } from "../../dto";
 import prisma from "../../db";

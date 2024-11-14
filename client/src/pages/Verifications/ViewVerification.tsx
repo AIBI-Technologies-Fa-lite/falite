@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { RootState } from "src/store";
 import { useGetVerificationByIdQuery, useSendOfResponseMutation, useSubmitVerificationMutation } from "@api/verificationApi";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -9,6 +8,7 @@ import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import ShowDocuments from "@components/ShowDocuments";
 import { Status } from "@constants/enum";
+import { selectUser } from "@providers/authSlice";
 
 const RejectModal = ({ isOpen, onClose, onSubmit, rejectReason, setRejectReason }) => {
   if (!isOpen) return null;
@@ -39,7 +39,8 @@ const RejectModal = ({ isOpen, onClose, onSubmit, rejectReason, setRejectReason 
 const ViewVerification = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const role = useSelector((state: RootState) => state.auth.user?.role);
+  const user = useSelector(selectUser);
+  const role = user?.role;
 
   const { data, error, isLoading, refetch } = useGetVerificationByIdQuery({ id });
   const [ofResponse] = useSendOfResponseMutation();
@@ -61,7 +62,10 @@ const ViewVerification = () => {
     if (error) {
       toast.error("An error occurred while fetching the case.");
     }
-  }, [error]);
+    if (!user?.working) {
+      toast.error("Please Start Day");
+    }
+  }, [error, user]);
 
   const handleAcceptClick = async () => {
     try {
@@ -280,6 +284,7 @@ const ViewVerification = () => {
           <button
             type="submit"
             className="w-full px-4 py-2 mt-6 mb-6 text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto"
+            disabled={!user?.working}
           >
             Submit
           </button>

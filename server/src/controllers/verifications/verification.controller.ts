@@ -273,7 +273,12 @@ export const ofResponse = async (req: Request, res: Response) => {
 };
 export const submitVerification = async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
-  const { feRemarks, status, location, id } = req.body as { feRemarks: string; status: Status; location: { lat: string; long: string }; id: any };
+  const { feRemarks, status, location, id } = req.body as {
+    feRemarks: string;
+    status: Status;
+    location: { lat: string; long: string };
+    id: any;
+  };
   const user = (req as CustomRequest).user;
 
   try {
@@ -288,10 +293,28 @@ export const submitVerification = async (req: Request, res: Response) => {
           }
         });
 
-        // Step 2: Calculate the distance
-        const origin = await tx.coordinates.findUnique({
+        // Step 2: Calculate the distance (Parallelized with Step 3)
+        const originPromise = tx.coordinates.findUnique({
           where: { id: user.startId }
         });
+
+        // Step 3: Update Verification record
+        const verificationPromise = tx.verification.update({
+          where: { id: parseInt(id) },
+          data: {
+            feRemarks,
+            status,
+            destination: { connect: { id: coords.id } },
+            final: 1 // Flag as completed
+          },
+          select: {
+            id: true,
+            case: { select: { id: true, employeeId: true } }
+          }
+        });
+
+        // Await both promises in parallel
+        const [origin, verification] = await Promise.all([originPromise, verificationPromise]);
         if (!origin) throw new Error("Origin coordinates not found");
 
         const response = await directionsClient
@@ -305,19 +328,11 @@ export const submitVerification = async (req: Request, res: Response) => {
         const distanceInMeters = response.body.routes[0]?.distance || 0;
         const distanceInKilometers = (distanceInMeters / 1000).toFixed(1);
 
-        // Step 3: Update Verification record
-        const verification = await tx.verification.update({
+        // Update verification with distance (uses a batch update for performance)
+        await tx.verification.update({
           where: { id: parseInt(id) },
           data: {
-            feRemarks,
-            status,
-            destination: { connect: { id: coords.id } },
-            distance: parseFloat(distanceInKilometers),
-            final: 1
-          },
-          select: {
-            id: true,
-            case: { select: { id: true, employeeId: true } }
+            distance: parseFloat(distanceInKilometers)
           }
         });
 
@@ -344,30 +359,35 @@ export const submitVerification = async (req: Request, res: Response) => {
 
         return verification;
       },
-      { timeout: 20000 } // Increased timeout to 20 seconds
+      { timeout: 20000 }
     );
 
-    // Step 5: Upload files and create Document records (moved outside transaction)
-    for (const file of files) {
-      const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
-      const blob = bucket.file(fileName);
-      const blobStream = blob.createWriteStream({ resumable: false });
+    // Step 5: Parallelize file uploads and document creation outside the transaction
+    await Promise.all(
+      files.map(async (file) => {
+        const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+        const blob = bucket.file(fileName);
+        const blobStream = blob.createWriteStream({ resumable: false });
 
-      await new Promise<void>((resolve, reject) => {
-        blobStream.on("finish", resolve).on("error", reject).end(file.buffer);
-      });
+        await new Promise<void>((resolve, reject) => {
+          blobStream.on("finish", resolve).on("error", reject).end(file.buffer);
+        });
 
-      const publicUrl = `${fileName}`;
-      await prisma.document.create({
-        data: {
-          verification: { connect: { id: transaction.id } },
-          employee: { connect: { id: user.id } },
-          name: publicUrl
-        }
-      });
-    }
+        const publicUrl = `${fileName}`;
+        await prisma.document.create({
+          data: {
+            verification: { connect: { id: transaction.id } },
+            employee: { connect: { id: user.id } },
+            name: publicUrl
+          }
+        });
+      })
+    );
 
+    // Send final notification outside transaction to avoid delays
     sendNotification("Verification Completed", transaction.case.employeeId, NotificationType.CASE, transaction.case.id);
+
+    // Respond with success status
     apiResponse.success(res, {});
   } catch (err) {
     console.error(err);

@@ -43,7 +43,7 @@ const authSlice = createSlice({
   }
 });
 
-export const { setCredentials, logout, changeSession } = authSlice.actions;
+export const { setCredentials, logout, changeSession, setWorking } = authSlice.actions;
 export const selectUser = (state: RootState) => state.auth.user;
 export const selectSession = (state: RootState) => state.auth.session;
 export const authReducer = authSlice.reducer;
