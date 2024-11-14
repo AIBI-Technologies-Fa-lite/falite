@@ -95,6 +95,7 @@ const ViewCase: React.FC = () => {
     }
   };
   const onRework = async (data: any) => {
+    console.log(data);
     try {
       await reworkCase({ supervisorRemarks: data.supervisorRemarks, id });
       toast.success("Case Sent for Rework");
@@ -407,7 +408,7 @@ const ViewCase: React.FC = () => {
                   <div className="flex flex-col gap-2 md:col-span-3">
                     <label>Remarks {errors.supervisorRemarks && <span className="text-red-500">*</span>}</label>
                     <textarea
-                      {...register("creRemarks", { required: true })}
+                      {...register("supervisorRemarks", { required: true })}
                       className="p-2 border-gray-500 rounded-lg border-2"
                       placeholder="Notes"
                     />

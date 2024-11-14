@@ -186,6 +186,7 @@ export const closeCase = async (req: Request, res: Response) => {
 };
 export const reworkCase = async (req: Request, res: Response) => {
   const { id } = req.params;
+  console.log(req.body);
   const { supervisorRemarks } = req.body as { supervisorRemarks: string };
 
   try {
