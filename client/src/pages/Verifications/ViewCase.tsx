@@ -367,7 +367,7 @@ const ViewCase: React.FC = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="p-6 bg-white rounded-lg shadow-lg">
               <h2 className="text-xl font-semibold mb-4">Close Case</h2>
-              <form className="" onSubmit={handleSubmit(onClose)}>
+              <form className="w-full" onSubmit={handleSubmit(onClose)}>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
                   <div className="flex flex-col col-span-1 gap-2">
                     <label>Status{errors.status && <span className="text-red-500">*</span>}</label>
@@ -381,6 +381,16 @@ const ViewCase: React.FC = () => {
                       <option value={Status.REFER}>REFER</option>
                     </select>
                   </div>
+                  {caseData.status === "REWORK" && (
+                    <div className="flex flex-col gap-2 md:col-span-3">
+                      <label>Remarks {errors.reworkRemarks && <span className="text-red-500">*</span>}</label>
+                      <textarea
+                        {...register("reworkRemarks", { required: true })}
+                        className="p-2 border-gray-500 rounded-lg border-2"
+                        placeholder="Notes"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-end gap-4 mt-6">
                   <button

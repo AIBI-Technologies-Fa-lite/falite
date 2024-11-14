@@ -53,6 +53,7 @@ model CommonData {
   updatedAt         DateTime       @updatedAt
   product           String
   supervisorRemarks String?
+  reworkRemarks     String?
   employeeId        Int
   employee          User           @relation(fields: [employeeId], references: [id])
   final             Int            @default(0)

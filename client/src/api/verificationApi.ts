@@ -63,10 +63,10 @@ const verificationApi = authApiSlice.injectEndpoints({
       invalidatesTags: ["verifications", "verification"]
     }),
     closeCase: builder.mutation({
-      query: ({ status, id }) => ({
+      query: ({ status, reworkRemarks, id }) => ({
         url: `/verification/case/${id}`,
         method: "PUT",
-        body: { status }
+        body: { status, reworkRemarks }
       }),
       invalidatesTags: ["cases"]
     }),

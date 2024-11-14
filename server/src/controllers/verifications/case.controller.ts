@@ -157,7 +157,7 @@ export const getCaseById = async (req: Request, res: Response) => {
 };
 export const closeCase = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status } = req.body as { status: Status };
+  const { status, reworkRemarks } = req.body as { status: Status; reworkRemarks: string };
 
   try {
     let data: any = {
@@ -172,6 +172,12 @@ export const closeCase = async (req: Request, res: Response) => {
       data = {
         ...data,
         final: 0
+      };
+    }
+    if (reworkRemarks) {
+      data = {
+        ...data,
+        reworkRemarks
       };
     }
     const updatedCase = await prisma.commonData.update({
