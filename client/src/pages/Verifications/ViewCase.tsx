@@ -45,6 +45,8 @@ interface CaseData {
   };
   final: 1 | 0;
   verifications: Verification[];
+  reworkRemarks: string;
+  supervisorRemarks: string;
 }
 
 const ViewCase: React.FC = () => {
@@ -245,7 +247,6 @@ const ViewCase: React.FC = () => {
             )}
           </div>
         </div>
-
         {/* Modal for adding new verification */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">

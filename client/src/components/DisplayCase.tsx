@@ -17,6 +17,8 @@ interface CaseData {
   clientName?: string;
   createdAt?: string;
   final: number;
+  supervisorRemarks: string;
+  reworkRemarks: string;
 }
 
 interface DisplayCaseProps {
@@ -43,6 +45,9 @@ const DisplayCase: React.FC<DisplayCaseProps> = ({ caseData, rework }) => {
         )}
       </div>
 
+      <hr className="md:col-span-3" />
+      {caseData.supervisorRemarks && <CaseDetails label="Supervisor Remarks" value={caseData.supervisorRemarks} />}
+      {caseData.reworkRemarks && <CaseDetails label="Rework Remarks" value={caseData.reworkRemarks} />}
       <hr className="md:col-span-3" />
       {caseData.caseNumber && <CaseDetails label="Case Number" value={caseData.caseNumber} />}
       {caseData.employee?.firstName && <CaseDetails label="CRE" value={caseData.employee.firstName} />}
