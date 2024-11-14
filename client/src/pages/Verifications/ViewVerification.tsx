@@ -44,7 +44,7 @@ const ViewVerification = () => {
 
   const { data, error, isLoading, refetch } = useGetVerificationByIdQuery({ id });
   const [ofResponse] = useSendOfResponseMutation();
-  const [submitResponse] = useSubmitVerificationMutation();
+  const [submitResponse, { isLoading: submitingVerification }] = useSubmitVerificationMutation();
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
@@ -284,7 +284,7 @@ const ViewVerification = () => {
           <button
             type="submit"
             className="w-full px-4 py-2 mt-6 mb-6 text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto"
-            disabled={!user?.working}
+            disabled={!user?.working || submitingVerification}
           >
             Submit
           </button>

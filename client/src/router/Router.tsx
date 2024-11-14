@@ -20,6 +20,8 @@ import ViewCase from "@pages/Verifications/ViewCase";
 import ViewCases from "@pages/Verifications/ViewCases";
 import ViewVerifications from "@pages/Verifications/ViewVerifications";
 import ViewVerification from "@pages/Verifications/ViewVerification";
+import Tracking from "@pages/GPS/Tracking";
+
 import { Role } from "@constants/enum";
 
 const adminRoutes = {
@@ -115,6 +117,17 @@ const verificationRoutes = {
   ]
 };
 
+const gpsRoutes = {
+  path: "/gps",
+  element: <RoleGuard allowedRoles={[Role.SUPERVISOR, Role.CRE]} children={<Layout />} />,
+  children: [
+    {
+      path: "/gps",
+      element: <Tracking />
+    }
+  ]
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -127,7 +140,8 @@ const router = createBrowserRouter([
       },
       adminRoutes,
       creRoutes,
-      verificationRoutes
+      verificationRoutes,
+      gpsRoutes
     ]
   },
   {

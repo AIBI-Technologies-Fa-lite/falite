@@ -63,8 +63,8 @@ const ViewCase: React.FC = () => {
   const [fileNames, setFileNames] = useState<string[]>([]); // State to track file names
 
   const [createVerification, { isLoading: isCreating, error: createError }] = useCreateVerificationMutation();
-  const [reopenVerification, { isLoading: isReopening, error: reopenError }] = useReopenVerificationMutation();
-  const [closeCase, { isLoading: isClosing, error: closeError }] = useCloseCaseMutation();
+  const [reopenVerification, { isLoading: isReopening }] = useReopenVerificationMutation();
+  const [closeCase, { isLoading: isClosing }] = useCloseCaseMutation();
   const [reworkCase] = useReworkCaseMutation();
   const [completeCase] = useMarkCompletedMutation();
 

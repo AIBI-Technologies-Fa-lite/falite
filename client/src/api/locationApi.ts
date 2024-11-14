@@ -8,8 +8,14 @@ const locationApi = authApiSlice.injectEndpoints({
         method: "POST",
         body: { lat, long }
       })
+    }),
+    getCheckins: builder.query({
+      query: () => ({
+        url: "/location/checkins",
+        method: "GET"
+      })
     })
   })
 });
 
-export const { useStartDayMutation } = locationApi;
+export const { useStartDayMutation, useGetCheckinsQuery } = locationApi;

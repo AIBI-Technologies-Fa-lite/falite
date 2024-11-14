@@ -64,6 +64,14 @@ const NavLinks: NavLink[] = [
       { name: "Create Case", path: "/verification/case/add", Roles: [Role.CRE] },
       { name: "View Cases", path: "/verification/case", Roles: [Role.CRE, Role.SUPERVISOR] }
     ]
+  },
+  {
+    name: "GPS",
+    icon: LuShield,
+    hasSub: false,
+    Roles: [Role.CRE, Role.SUPERVISOR],
+    path: "/gps",
+    sub: []
   }
 ];
 

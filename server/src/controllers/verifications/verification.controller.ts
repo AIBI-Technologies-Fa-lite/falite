@@ -324,7 +324,7 @@ export const submitVerification = async (req: Request, res: Response) => {
             geometries: "geojson"
           })
           .send();
-
+        console.log(response.body);
         const distanceInMeters = response.body.routes[0]?.distance || 0;
         const distanceInKilometers = (distanceInMeters / 1000).toFixed(1);
 
