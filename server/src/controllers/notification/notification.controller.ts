@@ -18,9 +18,9 @@ export const getNotifications = async (req: Request, res: Response) => {
   try {
     const [notifications, totalNotifications] = await prisma.$transaction([
       prisma.notification.findMany({
-        where: { userId: user.id }
+        where: { userId: user.id, isRead: false }
       }),
-      prisma.notification.count({ where: { userId: user.id } })
+      prisma.notification.count({ where: { userId: user.id, isRead: false } })
     ]);
 
     apiResponse.success(res, { notifications }, { count: totalNotifications });

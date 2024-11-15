@@ -5,14 +5,16 @@ const notificationApi = authApiSlice.injectEndpoints({
     readNotification: builder.mutation({
       query: ({ id }) => ({
         url: `/notification/${id}`,
-        method: "POST"
-      })
+        method: "PUT"
+      }),
+      invalidatesTags: ["notifications"]
     }),
     getNotifications: builder.query({
       query: () => ({
         url: "/notification",
         method: "GET"
-      })
+      }),
+      providesTags: ["notifications"]
     })
   })
 });
