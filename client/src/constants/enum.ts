@@ -4,7 +4,8 @@ export enum Role {
   ADMIN = "ADMIN",
   SUPERVISOR = "SUPERVISOR",
   CRE = "CRE",
-  OF = "OF"
+  OF = "OF",
+  ACCOUNTS = "ACCOUNTS"
 }
 
 // Enum for various statuses

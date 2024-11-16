@@ -39,7 +39,7 @@ const Top = () => {
       if (notification.type === "VERIFICATION") {
         navigate(`/verification/${notification.linkTo}`);
       } else if (notification.type === "CASE") {
-        navigate(`/case/${notification.linkTo}`);
+        navigate(`/verification/case/${notification.linkTo}`);
       }
     } catch (error) {
       console.error("Failed to mark notification as read:", error);

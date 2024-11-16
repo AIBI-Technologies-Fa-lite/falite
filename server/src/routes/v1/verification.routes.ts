@@ -5,7 +5,9 @@ import {
   getVerificationById,
   ofResponse,
   submitVerification,
-  reopenVerification
+  reopenVerification,
+  getBillingVerifications,
+  markBilling
 } from "../../controllers/verifications/verification.controller";
 import { createCase, getCases, getCaseById, closeCase, markCompleted, reworkCase } from "../../controllers/verifications/case.controller";
 import { roleMiddleware } from "../../middlewares/auth";
@@ -15,10 +17,12 @@ import { upload } from "../../config";
 const verificationRouter = Router();
 
 verificationRouter.post("/", roleMiddleware([Role.CRE]), upload.array("files"), createVerification);
-verificationRouter.get("/", roleMiddleware([Role.ADMIN, Role.OF, Role.SUPERVISOR]), getVerifications);
+verificationRouter.get("/", roleMiddleware([Role.ADMIN, Role.OF, Role.SUPERVISOR, Role.ACCOUNTS]), getVerifications);
 verificationRouter.put("/reopen/:id", roleMiddleware([Role.SUPERVISOR, Role.CRE]), reopenVerification);
 verificationRouter.put("/of/:id", roleMiddleware([Role.OF]), ofResponse);
 verificationRouter.post("/submit", upload.array("files"), roleMiddleware([Role.OF]), submitVerification);
+verificationRouter.get("/billing", roleMiddleware([Role.ACCOUNTS]), getBillingVerifications);
+verificationRouter.put("/billing/:id", roleMiddleware([Role.ACCOUNTS]), markBilling);
 verificationRouter.post("/case", roleMiddleware([Role.CRE]), createCase);
 verificationRouter.get("/case", roleMiddleware([Role.SUPERVISOR, Role.CRE]), getCases);
 verificationRouter.get("/case/:id", roleMiddleware([Role.CRE, Role.SUPERVISOR]), getCaseById);

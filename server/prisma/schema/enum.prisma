@@ -4,6 +4,7 @@ enum Role {
   SUPERVISOR
   CRE
   OF
+  ACCOUNTS
 }
 
 enum Status {

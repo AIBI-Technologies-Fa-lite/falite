@@ -31,6 +31,12 @@ const verificationApi = authApiSlice.injectEndpoints({
       }),
       invalidatesTags: ["verifications"]
     }),
+    getBilling: builder.query({
+      query: ({}) => ({
+        url: "/verification/billing",
+        method: "GET"
+      })
+    }),
     getAllVerifications: builder.query({
       query: ({ page = 1, limit = 10, search, searchColumn, status, order }) => ({
         url: "/verification",
@@ -90,6 +96,13 @@ const verificationApi = authApiSlice.injectEndpoints({
         url: `/verification/case/complete/${id}`,
         method: "PUT"
       })
+    }),
+    markBilling: builder.mutation({
+      query: ({ id, ofBillable, clientBillable }) => ({
+        url: `/verification/billing/${id}`,
+        method: "PUT",
+        body: { ofBillable, clientBillable }
+      })
     })
   })
 });
@@ -106,5 +119,7 @@ export const {
   useCloseCaseMutation,
   useReopenVerificationMutation,
   useReworkCaseMutation,
-  useMarkCompletedMutation
+  useMarkCompletedMutation,
+  useGetBillingQuery,
+  useMarkBillingMutation
 } = verificationApi;

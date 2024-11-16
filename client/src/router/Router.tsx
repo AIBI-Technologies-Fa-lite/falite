@@ -21,6 +21,7 @@ import ViewCases from "@pages/Verifications/ViewCases";
 import ViewVerifications from "@pages/Verifications/ViewVerifications";
 import ViewVerification from "@pages/Verifications/ViewVerification";
 import Tracking from "@pages/GPS/Tracking";
+import Billing from "@pages/Verifications/Billing";
 
 import { Role } from "@constants/enum";
 
@@ -91,7 +92,7 @@ const creRoutes = {
 };
 const verificationRoutes = {
   path: "/",
-  element: <RoleGuard allowedRoles={[Role.CRE, Role.SUPERVISOR, Role.OF]} children={<Layout />} />,
+  element: <RoleGuard allowedRoles={[Role.CRE, Role.SUPERVISOR, Role.OF, Role.ACCOUNTS]} children={<Layout />} />,
   children: [
     {
       path: "/verification",
@@ -113,6 +114,16 @@ const verificationRoutes = {
           element: <ViewCase />
         }
       ]
+    }
+  ]
+};
+const billingRoutes = {
+  path: "/billing",
+  element: <RoleGuard allowedRoles={[Role.ACCOUNTS]} children={<Layout />} />,
+  children: [
+    {
+      path: "/billing",
+      element: <Billing />
     }
   ]
 };
@@ -141,7 +152,8 @@ const router = createBrowserRouter([
       adminRoutes,
       creRoutes,
       verificationRoutes,
-      gpsRoutes
+      gpsRoutes,
+      billingRoutes
     ]
   },
   {

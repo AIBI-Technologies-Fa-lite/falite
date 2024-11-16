@@ -193,6 +193,31 @@ export const getVerifications = async (req: Request, res: Response) => {
     apiResponse.error(res, "An error occurred while fetching verifications.");
   }
 };
+export const getBillingVerifications = async (req: Request, res: Response) => {
+  const user = (req as CustomRequest).user;
+  try {
+    const verifications = await prisma.verification.findMany({
+      where: { of: { organizationId: user.organizationId }, billable: false },
+      include: {
+        of: { select: { firstName: true, lastName: true } },
+        case: {
+          select: {
+            employee: { select: { firstName: true, lastName: true } },
+            product: true,
+            clientName: true
+          }
+        },
+        verificationType: true
+      }
+    });
+    const count = await prisma.verification.count({ where: { of: { organizationId: user.organizationId }, billable: false } });
+    const totalPages = Math.ceil(count / 10);
+    apiResponse.success(res, { verifications }, { pages: totalPages });
+  } catch (err) {
+    console.error("Error fetching verifications:", err);
+    apiResponse.error(res, "An error occurred while fetching verifications.");
+  }
+};
 export const getVerificationById = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
 
@@ -271,6 +296,23 @@ export const ofResponse = async (req: Request, res: Response) => {
   } catch (err) {
     console.log(err);
     apiResponse.error(res);
+  }
+};
+export const markBilling = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+  const { ofBillable, clientBillable } = req.body as { ofBillable: boolean; clientBillable: boolean };
+  try {
+    const verification = await prisma.verification.update({
+      where: { id: parseInt(id) },
+      data: {
+        billable: true,
+        clientBillable,
+        ofBillable
+      }
+    });
+    apiResponse.success(res, {});
+  } catch (err) {
+  apiResponse.error(res);
   }
 };
 export const submitVerification = async (req: Request, res: Response) => {

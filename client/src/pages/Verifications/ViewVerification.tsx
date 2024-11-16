@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useGetVerificationByIdQuery, useSendOfResponseMutation, useSubmitVerificationMutation } from "@api/verificationApi";
+import { useGetVerificationByIdQuery, useSendOfResponseMutation, useSubmitVerificationMutation, useMarkBillingMutation } from "@api/verificationApi";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import CaseDetails from "@components/CaseDetails";
@@ -41,10 +41,12 @@ const ViewVerification = () => {
   const { id } = useParams();
   const user = useSelector(selectUser);
   const role = user?.role;
+  const [billingModal, setBillingModal] = useState(false);
 
   const { data, error, isLoading, refetch } = useGetVerificationByIdQuery({ id });
   const [ofResponse] = useSendOfResponseMutation();
   const [submitResponse, { isLoading: submitingVerification }] = useSubmitVerificationMutation();
+  const [markBilling, { isLoading: marking }] = useMarkBillingMutation();
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
@@ -62,7 +64,7 @@ const ViewVerification = () => {
     if (error) {
       toast.error("An error occurred while fetching the case.");
     }
-    if (!user?.working && user?.role === "OF") {
+    if (!user?.working && user?.role === "OF" && data?.data?.status === "ONGOING") {
       toast.error("Please Start Day");
     }
   }, [error, user]);
@@ -76,7 +78,18 @@ const ViewVerification = () => {
       toast.error("An error occurred while accepting the case.");
     }
   };
-
+  const markBillableVerification = async (data) => {
+    const ofBillable = parseInt(data.ofBillable) ? true : false;
+    const clientBillable = parseInt(data.clientBillable) ? true : false;
+    try {
+      await markBilling({ id, ofBillable, clientBillable });
+      toast.success("Billing Marked");
+      setBillingModal(false);
+      refetch();
+    } catch (err) {
+      toast.error("Could Not mark for Billing");
+    }
+  };
   const handleRejectSubmit = async () => {
     if (!rejectReason.trim()) {
       toast.error("Please provide a reason for rejection.");
@@ -84,7 +97,7 @@ const ViewVerification = () => {
     }
     try {
       await ofResponse({ id, reject: true, remarks: rejectReason }).unwrap();
-      toast.success("Case rejected successfully.");
+      toast.success("Verification rejected successfully.");
       setIsRejectModalOpen(false);
       navigate("/verification");
     } catch (err) {
@@ -176,6 +189,16 @@ const ViewVerification = () => {
         <hr className="md:col-span-3" />
         <div className="flex flex-col justify-between gap-2 md:col-span-3 md:flex-row">
           <p className="text-2xl font-bold text-gray-500 md:col-span-3">Verification Details</p>
+          {role === "ACCOUNTS" && verification.billable == false ? (
+            <div
+              className="md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer"
+              onClick={() => {
+                setBillingModal(true);
+              }}
+            >
+              Add Billing Status
+            </div>
+          ) : null}
           {role === "OF" && verification.status === Status.PENDING ? (
             <div className="flex gap-4">
               <button className="px-2 py-1 text-white bg-green-500 rounded-lg" onClick={handleAcceptClick}>
@@ -222,6 +245,7 @@ const ViewVerification = () => {
         <CaseDetails label="Address" value={verification.address} />
         <CaseDetails label="Pincode" value={verification.pincode} />
         <CaseDetails label="CRE Remarks" value={verification.creRemarks} />
+        {user?.role !== "OF" && verification.distance !== null ? <CaseDetails label="Distance" value={verification.distance} /> : null}
         {verification.feRemarks && <CaseDetails label="OF Remarks" value={verification.feRemarks} />}
         <CaseDetails label="Assigned At" value={convertToIST(verification.createdAt)} />
         {verification.createdAt !== verification.updatedAt && <CaseDetails label="Updated At" value={convertToIST(verification.updatedAt)} />}
@@ -289,6 +313,43 @@ const ViewVerification = () => {
             Submit
           </button>
         </form>
+      )}
+      {billingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="p-6 bg-white rounded-lg shadow-lg md:w-[40%] w-[90%]">
+            <h2 className="text-xl font-semibold mb-4">Mark Billing</h2>
+            <form className="" onSubmit={handleSubmit(markBillableVerification)}>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400">
+                <div className="flex flex-col gap-2 md:col-span-1">
+                  <label>Billable To OF {errors.ofBillable && <span className="text-red-500">*</span>}</label>
+                  <select className="p-2 border-gray-500 rounded-lg border-2" {...register("ofBillable", { required: true })} defaultValue="">
+                    <option value={1}>Billable</option>
+                    <option value={0}>Not Billable</option>
+                  </select>
+                </div>{" "}
+                <div className="flex flex-col gap-2 md:col-span-1">
+                  <label>Billable To Client {errors.clientBillable && <span className="text-red-500">*</span>}</label>
+                  <select className="p-2 border-gray-500 rounded-lg border-2" {...register("clientBillable", { required: true })} defaultValue="">
+                    <option value={1}>Billable</option>
+                    <option value={0}>Not Billable</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setBillingModal(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-300 rounded-lg hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-400" disabled={marking}>
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Modals for Reject and Reassign */}
