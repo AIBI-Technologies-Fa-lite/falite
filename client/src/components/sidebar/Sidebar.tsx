@@ -8,7 +8,6 @@ import { useState } from "react";
 const Sidebar = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  console.log(user);
 
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
