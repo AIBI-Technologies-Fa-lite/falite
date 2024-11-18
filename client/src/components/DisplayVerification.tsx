@@ -25,6 +25,12 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification,
               ? "text-blue-500"
               : verification.status === Status.REJECTED
               ? "text-red-500"
+              : verification.status === Status.CANNOTVERIFY
+              ? "text-orange-500"
+              : verification.status === Status.NEGATIVE
+              ? "text-red-500"
+              : verification.status === Status.REFER
+              ? "text-orange-500"
               : "text-green-500"
           }`}
         >
@@ -34,6 +40,12 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification,
             ? "Ongoing"
             : verification.status === Status.REJECTED
             ? "Rejected"
+            : verification.status === Status.CANNOTVERIFY
+            ? "Cannot Verify"
+            : verification.status === Status.NEGATIVE
+            ? "Negative"
+            : verification.status === Status.REFER
+            ? "Refer"
             : "Completed"}
         </p>
 

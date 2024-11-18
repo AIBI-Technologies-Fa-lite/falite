@@ -43,6 +43,7 @@ const Login = () => {
   type TempLocation = Location | undefined;
 
   const onSubmit = async (data: Credentials) => {
+    console.log(data)
     const credentials = data;
 
     // Initialize location as an empty object with optional latitude and longitude

@@ -37,6 +37,9 @@ const Billing: React.FC = () => {
           if (status === Status.PENDING) return <div className="text-orange-500">Pending</div>;
           if (status === Status.ONGOING) return <div className="text-yellow-500">In Progress</div>;
           if (status === Status.REASSIGN) return <div className="text-red-500">Reassign</div>;
+          if (status === Status.CANNOTVERIFY) return <div className="text-orange-500">Cannot Verify</div>;
+          if (status === Status.NEGATIVE) return <div className="text-red-500">Negative</div>;
+          if (status === Status.REFER) return <div className="text-orange-500">Refer</div>;
           return <div className="text-green-500">Completed</div>;
         },
         enableSorting: false
