@@ -64,7 +64,8 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
 
     while (current < end) {
       const isWorkingDay = workDays.includes(current.weekday);
-      const isWithinWorkingHours = current.hour >= workStartHour && current.hour < workEndHour;
+      const isWithinWorkingHours =
+        current.hour >= workStartHour && current.hour < workEndHour;
 
       if (isWorkingDay && isWithinWorkingHours) {
         const nextHour = current.plus({ hours: 1 });
@@ -76,7 +77,9 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
         }
         current = nextHour;
       } else {
-        current = current.plus({ days: 1 }).set({ hour: workStartHour, minute: 0, second: 0 });
+        current = current
+          .plus({ days: 1 })
+          .set({ hour: workStartHour, minute: 0, second: 0 });
       }
     }
 
@@ -93,5 +96,46 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
     status = 2;
   }
 
-  return { time: `${Math.floor(totalHours)} hour${totalHours !== 1 ? "s" : ""}`, status };
+  return {
+    time: `${Math.floor(totalHours)} hour${totalHours !== 1 ? "s" : ""}`,
+    status
+  };
+};
+
+export const getDateRangeForCurrentMonth = () => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // First day of the month
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999
+  ); // Last day of the month
+  return { startOfMonth, endOfMonth };
+};
+
+export const getDateRangeForToday = () => {
+  const now = new Date();
+  const startOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    0,
+    0,
+    0,
+    0
+  );
+  const endOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+    999
+  );
+  return { startOfDay, endOfDay };
 };
