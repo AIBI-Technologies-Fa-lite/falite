@@ -30,18 +30,19 @@ const FieldDashboard = () => {
       }
     );
   };
+
   return (
     <div className='flex flex-col w-full gap-10 pb-4'>
       <div>
         {!user?.working ? (
           <button
-            className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-8'
+            className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'
             onClick={startDay}
           >
             Start Day
           </button>
         ) : (
-          <button className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-8'>
+          <button className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'>
             End Day
           </button>
         )}
@@ -52,7 +53,7 @@ const FieldDashboard = () => {
       ) : (
         <div className='flex flex-col flex-1 gap-6'>
           <div>
-            <h2 className='mb-4 text-xl font-bold'>Monthly</h2>
+            <h2 className='mb-4 text-xl font-bold'>Month To Date</h2>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <InfoCard
                 title='Total'
