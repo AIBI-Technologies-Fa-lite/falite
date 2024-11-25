@@ -4,7 +4,7 @@ import FieldDashboard from "./Dashboard/FieldDashboard";
 import CreDashboard from "./Dashboard/CreDashboard";
 const HomeRouter = () => {
   const user = useSelector(selectUser);
-  if (user?.role === "OF") {
+  if (user?.role === "OF" || user?.role === "SUPERVISOR") {
     return <FieldDashboard />;
   } else if (user?.role === "CRE") {
     return <CreDashboard />;

@@ -5,21 +5,21 @@ import Top from "@components/Top";
 import Header from "@components/Header";
 const Layout = () => {
   return (
-    <div className="min-h-screen">
-      <div className="md:hidden">
+    <div className='min-h-screen'>
+      <div className='md:hidden'>
         <Header />
       </div>
-      <div className="grid grid-cols-6">
-        <div className="hidden md:col-span-1 md:block">
+      <div className='grid grid-cols-6'>
+        <div className='hidden md:col-span-1 md:block'>
           <Sidebar />
         </div>
-        <div className="h-screen col-span-6 px-4 overflow-y-scroll bg-gray-100 md:col-span-5 md:px-14">
+        <div className='h-screen col-span-6 px-4 bg-gray-100 md:col-span-5 md:px-14'>
           <Top />
           <Outlet />
         </div>
       </div>
       <ToastContainer
-        position="top-right"
+        position='top-right'
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}

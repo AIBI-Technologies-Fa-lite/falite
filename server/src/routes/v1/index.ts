@@ -10,6 +10,7 @@ import vtRouter from "./verificationType.routes";
 import verificationRouter from "./verification.routes";
 import notificationRouter from "./notification.routes";
 import locationRouter from "./location.routes";
+import reportingRouter from "./reporting.routes";
 const v1Router = Router();
 
 v1Router.use("/super", superRouter);
@@ -22,4 +23,5 @@ v1Router.use("/user", userRouter);
 v1Router.use("/vt", vtRouter);
 v1Router.use("/verification", verificationRouter);
 v1Router.use("/location", locationRouter);
+v1Router.use("/reporting", reportingRouter);
 export default v1Router;

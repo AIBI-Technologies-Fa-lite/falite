@@ -1,5 +1,4 @@
 {
-  "arrowParens": "avoid",
   "htmlWhitespaceSensitivity": "css",
   "insertPragma": false,
   "tabWidth": 2,
