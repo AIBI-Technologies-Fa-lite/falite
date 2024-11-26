@@ -42,6 +42,7 @@ const DirectorDashboard = () => {
     labels: ["Completed", "Pending"],
     datasets: [
       {
+        label: "Percentage",
         data: [
           currentData?.completedPercentage,
           100 - currentData?.completedPercentage

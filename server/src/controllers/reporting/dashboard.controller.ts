@@ -444,13 +444,67 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
           ];
 
     // Map total assigned data to labels
-    const totalAssignedData: number[] = labels.map((_, index) => {
-      return totalAssigned[index]?._count.id || 0;
+    const totalAssignedData: number[] = labels.map((label) => {
+      const totalForLabel = totalAssigned
+        .filter((group) => {
+          const groupDate = new Date(group.createdAt);
+          const groupLabel =
+            timeRange === "daily"
+              ? `${groupDate.getDate()}/${groupDate.getMonth() + 1}`
+              : timeRange === "this-month"
+              ? `${groupDate.getDate()}`
+              : [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec"
+                ][groupDate.getMonth()];
+
+          return groupLabel === label;
+        })
+        .reduce((sum, group) => sum + group._count.id, 0); // Sum all matching counts for the label
+
+      return totalForLabel;
     });
 
     // Map total completed data to labels
-    const totalCompletedData: number[] = labels.map((_, index) => {
-      return totalCompleted[index]?._count.id || 0;
+    const totalCompletedData: number[] = labels.map((label) => {
+      const totalForLabel = totalCompleted
+        .filter((group) => {
+          const groupDate = new Date(group.updatedAt);
+          const groupLabel =
+            timeRange === "daily"
+              ? `${groupDate.getDate()}/${groupDate.getMonth() + 1}`
+              : timeRange === "this-month"
+              ? `${groupDate.getDate()}`
+              : [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec"
+                ][groupDate.getMonth()];
+
+          return groupLabel === label;
+        })
+        .reduce((sum, group) => sum + group._count.id, 0); // Sum all matching counts for the label
+
+      return totalForLabel;
     });
 
     // Aggregate distance covered
@@ -477,7 +531,7 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
       totalAssigned: totalAssignedData,
       totalCompleted: totalCompletedData
     };
-
+    console.log(data);
     // Send response
     apiResponse.success(res, { data });
   } catch (error) {
