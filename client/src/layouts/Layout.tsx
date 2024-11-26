@@ -13,7 +13,7 @@ const Layout = () => {
         <div className='hidden md:col-span-1 md:block'>
           <Sidebar />
         </div>
-        <div className='h-screen col-span-6 px-4 bg-gray-100 md:col-span-5 md:px-14'>
+        <div className='h-screen col-span-6 px-4 bg-gray-100 md:col-span-5 md:px-14 md:overflow-y-auto'>
           <Top />
           <Outlet />
         </div>

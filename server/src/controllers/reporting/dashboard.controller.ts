@@ -323,44 +323,41 @@ export const getCaseCount = async (req: Request, res: Response) => {
   }
 };
 
-export const reporting = async (req: Request, res: Response) => {
+export const reporting = async (req: Request, res: Response): Promise<void> => {
   try {
     const { timeRange } = req.query as { timeRange: string };
 
-    // Calculate the start and end dates based on timeRange
-    const now = new Date();
-    let startDate, endDate, groupByField;
+    const now: Date = new Date();
+    let startDate: Date;
+    let endDate: Date;
+    let groupByField: string;
 
+    // Set start and end dates based on time range
     if (timeRange === "daily") {
       startDate = new Date(
         now.getFullYear(),
         now.getMonth(),
-        now.getDate(),
-        0,
-        0,
-        0
+        now.getDate() - 6
       );
-      endDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        23,
-        59,
-        59
-      );
-      groupByField = "day"; // Group by day
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
+      groupByField = "day";
     } else if (timeRange === "this-month") {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = now;
-      groupByField = "week"; // Group by week
+      endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
+      groupByField = "week";
     } else if (timeRange === "monthly") {
       startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
       endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-      groupByField = "month"; // Group by month
+      groupByField = "month";
+    } else {
+      throw new Error("Invalid timeRange provided.");
     }
 
-    // Fetch total verifications and completed verifications
-    const totalVerifications = await prisma.verification.count({
+    // Fetch total verifications
+    const totalVerifications: number = await prisma.verification.count({
       where: {
         createdAt: {
           gte: startDate,
@@ -369,7 +366,8 @@ export const reporting = async (req: Request, res: Response) => {
       }
     });
 
-    const completedVerifications = await prisma.verification.count({
+    // Fetch completed verifications
+    const completedVerifications: number = await prisma.verification.count({
       where: {
         final: 1,
         updatedAt: {
@@ -379,8 +377,9 @@ export const reporting = async (req: Request, res: Response) => {
       }
     });
 
+    // Group total verifications by the specified field
     const totalAssigned = await prisma.verification.groupBy({
-      by: ["createdAt"], // Group by date field
+      by: ["createdAt"], // Replace with appropriate grouping field if needed
       _count: {
         id: true
       },
@@ -394,9 +393,11 @@ export const reporting = async (req: Request, res: Response) => {
         createdAt: "asc"
       }
     });
+    console.log(totalAssigned);
 
+    // Group completed verifications by the specified field
     const totalCompleted = await prisma.verification.groupBy({
-      by: ["updatedAt"], // Group by date field
+      by: ["updatedAt"], // Replace with appropriate grouping field if needed
       _count: {
         id: true
       },
@@ -412,12 +413,21 @@ export const reporting = async (req: Request, res: Response) => {
       }
     });
 
-    // Generate labels for the chart
-    const labels =
+    console.log(totalCompleted);
+
+    // Generate labels based on the time range
+    const labels: string[] =
       timeRange === "daily"
-        ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        ? Array.from({ length: 7 }, (_, i) => {
+            const date = new Date();
+            date.setDate(now.getDate() - 6 + i);
+            return `${date.getDate()}/${date.getMonth() + 1}`;
+          })
         : timeRange === "this-month"
-        ? ["Week 1", "Week 2", "Week 3", "Week 4"]
+        ? Array.from({ length: now.getDate() }, (_, i) => {
+            const date = new Date(now.getFullYear(), now.getMonth(), i + 1);
+            return `${date.getDate()}`;
+          })
         : [
             "Jan",
             "Feb",
@@ -433,16 +443,17 @@ export const reporting = async (req: Request, res: Response) => {
             "Dec"
           ];
 
-    // Map the database results into chart data
-    const totalAssignedData = labels.map((label, index) => {
+    // Map total assigned data to labels
+    const totalAssignedData: number[] = labels.map((_, index) => {
       return totalAssigned[index]?._count.id || 0;
     });
 
-    const totalCompletedData = labels.map((label, index) => {
+    // Map total completed data to labels
+    const totalCompletedData: number[] = labels.map((_, index) => {
       return totalCompleted[index]?._count.id || 0;
     });
 
-    // Fetch distance covered (sum aggregation)
+    // Aggregate distance covered
     const distanceCovered = await prisma.verification.aggregate({
       _sum: {
         distance: true
@@ -466,10 +477,11 @@ export const reporting = async (req: Request, res: Response) => {
       totalAssigned: totalAssignedData,
       totalCompleted: totalCompletedData
     };
+
+    // Send response
     apiResponse.success(res, { data });
   } catch (error) {
     console.error("Error fetching analytics:", error);
-    // Ensure only one error response is sent
     apiResponse.error(res);
   }
 };
