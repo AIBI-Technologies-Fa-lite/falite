@@ -326,11 +326,9 @@ export const getCaseCount = async (req: Request, res: Response) => {
 export const reporting = async (req: Request, res: Response): Promise<void> => {
   try {
     const { timeRange } = req.query as { timeRange: string };
-
     const now: Date = new Date();
     let startDate: Date;
     let endDate: Date;
-    let groupByField: string;
 
     // Set start and end dates based on time range
     if (timeRange === "daily") {
@@ -342,16 +340,13 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
-      groupByField = "day";
     } else if (timeRange === "this-month") {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
-      groupByField = "week";
     } else if (timeRange === "monthly") {
       startDate = new Date(now.getFullYear(), now.getMonth() - 11, 1);
       endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-      groupByField = "month";
     } else {
       throw new Error("Invalid timeRange provided.");
     }
