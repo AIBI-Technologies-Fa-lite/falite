@@ -388,7 +388,6 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
         createdAt: "asc"
       }
     });
-    console.log(totalAssigned);
 
     // Group completed verifications by the specified field
     const totalCompleted = await prisma.verification.groupBy({
@@ -408,7 +407,7 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
       }
     });
 
-    console.log(totalCompleted);
+    totalCompleted;
 
     // Generate labels based on the time range
     const labels: string[] =
@@ -526,7 +525,7 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
       totalAssigned: totalAssignedData,
       totalCompleted: totalCompletedData
     };
-    console.log(data);
+
     // Send response
     apiResponse.success(res, { data });
   } catch (error) {

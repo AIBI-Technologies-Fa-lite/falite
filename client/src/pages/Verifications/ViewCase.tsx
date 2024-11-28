@@ -97,7 +97,6 @@ const ViewCase: React.FC = () => {
     }
   };
   const onRework = async (data: any) => {
-    console.log(data);
     try {
       await reworkCase({ supervisorRemarks: data.supervisorRemarks, id });
       toast.success("Case Sent for Rework");

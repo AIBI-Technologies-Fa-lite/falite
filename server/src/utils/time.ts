@@ -1,6 +1,14 @@
 import { DateTime } from "luxon";
 
-export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
+type tat = {
+  time: number;
+  status: number;
+};
+export const calculateTat = (
+  createdAt: any,
+  updatedAt: any,
+  stat: number
+): tat => {
   // Convert to DateTime objects using Luxon
   const start = DateTime.fromJSDate(createdAt, { zone: "Asia/Kolkata" });
   let end = DateTime.fromJSDate(updatedAt, { zone: "Asia/Kolkata" });
@@ -54,7 +62,7 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
   let adjustedEnd = adjustEndTime(end);
 
   if (adjustedStart > adjustedEnd) {
-    return { time: "0 hours", status: 0 };
+    return { time: 0, status: 0 };
   }
 
   // Calculate total business hours between start and end times
@@ -97,7 +105,7 @@ export const calculateTat = (createdAt: any, updatedAt: any, stat: number) => {
   }
 
   return {
-    time: `${Math.floor(totalHours)} hour${totalHours !== 1 ? "s" : ""}`,
+    time: Math.floor(totalHours),
     status
   };
 };

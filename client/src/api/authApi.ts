@@ -1,6 +1,6 @@
 import { apiSlice } from "./apiSlice";
 import { logout } from "@providers/authSlice";
-import { Credentials, Location } from "src/types"; // Assuming these are properly defined
+import { Credentials, Location } from "src/types"; 
 
 // Extend apiSlice with auth-specific endpoints
 const authApi = apiSlice.injectEndpoints({

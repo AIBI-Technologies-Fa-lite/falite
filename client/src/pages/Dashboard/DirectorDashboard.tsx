@@ -11,7 +11,7 @@ const DirectorDashboard = () => {
     isLoading
   } = useReportingQuery({ timeRange }); // API call
   const [currentData, setCurrentData] = useState<any>(null); // State to store dashboard data
-  console.log(currentData);
+
   useEffect(() => {
     if (!isLoading && reports) {
       setCurrentData(reports.data.data); // Set the API data to state
