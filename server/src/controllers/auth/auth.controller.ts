@@ -10,7 +10,10 @@ import { Login } from "../../dto";
 import { CreateCoordinates } from "../../dto/location";
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-  const { credentials, location }: { credentials: Login; location: CreateCoordinates } = req.body;
+  const {
+    credentials,
+    location
+  }: { credentials: Login; location: CreateCoordinates } = req.body;
 
   try {
     if (!location.latitude || !location.longitude) {
@@ -19,7 +22,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       // Check if the user exists
       const user = await prisma.user.findUnique({
         where: { email: credentials.email },
-        select: { id: true, password: true, location: true, firstName: true, role: true, locationId: true, working: true }
+        select: {
+          id: true,
+          password: true,
+          location: true,
+          firstName: true,
+          role: true,
+          locationId: true,
+          working: true
+        }
       });
 
       if (!user) {
@@ -41,12 +52,25 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       });
 
       // Generate a JWT token
-      const token = jwt.sign({ userId: user.id }, config.JWT_SECRET as string, { expiresIn: "1h" });
+      const token = jwt.sign({ userId: user.id }, config.JWT_SECRET as string, {
+        expiresIn: "1h"
+      });
 
       // Set the token in the response cookie
-      res.cookie("token", token, { httpOnly: true, secure: config.ENV === "production" });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: config.ENV === "production"
+      });
 
-      apiResponse.success(res, { token, user: { id: user.id, firstName: user.firstName, role: user.role, working: user.working } });
+      apiResponse.success(res, {
+        token,
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          role: user.role,
+          working: user.working
+        }
+      });
     }
   } catch (error) {
     console.error("Error logging in user:", error);
