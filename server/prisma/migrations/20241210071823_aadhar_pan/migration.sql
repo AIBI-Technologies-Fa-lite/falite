@@ -53,7 +53,7 @@ CREATE TABLE `Branch` (
 CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `organizationId` INTEGER NOT NULL,
-    `role` ENUM('DIRECTOR', 'ADMIN', 'SUPERVISOR', 'CRE', 'OF') NOT NULL,
+    `role` ENUM('DIRECTOR', 'ADMIN', 'SUPERVISOR', 'CRE', 'OF', 'ACCOUNTS') NOT NULL,
     `firstName` VARCHAR(191) NOT NULL,
     `lastName` VARCHAR(191) NOT NULL,
     `bloodGroup` VARCHAR(191) NULL,
@@ -61,11 +61,12 @@ CREATE TABLE `User` (
     `phone` VARCHAR(191) NULL,
     `dob` DATETIME(3) NULL,
     `address` VARCHAR(191) NULL,
+    `aadhar` VARCHAR(191) NULL,
+    `pan` VARCHAR(191) NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `deleted` BOOLEAN NOT NULL DEFAULT false,
     `working` BOOLEAN NOT NULL DEFAULT false,
-    `supervisorId` INTEGER NULL,
     `locationId` INTEGER NOT NULL,
     `startId` INTEGER NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -101,7 +102,10 @@ CREATE TABLE `Verification` (
     `distance` DOUBLE NULL,
     `destinationId` INTEGER NULL,
     `of_id` INTEGER NOT NULL,
-    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW') NOT NULL,
+    `billable` BOOLEAN NOT NULL DEFAULT false,
+    `clientBillable` BOOLEAN NOT NULL DEFAULT false,
+    `ofBillable` BOOLEAN NOT NULL DEFAULT false,
+    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW', 'REWORK') NOT NULL,
     `final` INTEGER NOT NULL DEFAULT 0,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -117,10 +121,12 @@ CREATE TABLE `CommonData` (
     `businessName` VARCHAR(191) NULL,
     `coApplicatntName` VARCHAR(191) NULL,
     `caseNumber` VARCHAR(191) NOT NULL,
-    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW') NOT NULL,
+    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW', 'REWORK') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `product` VARCHAR(191) NOT NULL,
+    `supervisorRemarks` VARCHAR(191) NULL,
+    `reworkRemarks` VARCHAR(191) NULL,
     `employeeId` INTEGER NOT NULL,
     `final` INTEGER NOT NULL DEFAULT 0,
 
@@ -154,9 +160,6 @@ ALTER TABLE `Branch` ADD CONSTRAINT `Branch_organizationId_fkey` FOREIGN KEY (`o
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `User` ADD CONSTRAINT `User_supervisorId_fkey` FOREIGN KEY (`supervisorId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_locationId_fkey` FOREIGN KEY (`locationId`) REFERENCES `Coordinates`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -8,7 +8,10 @@ import { Role } from "@prisma/client";
 import { getFile } from "../../utils/documents";
 import { v4 as uuidv4 } from "uuid";
 export const createEmployee = async (req: Request, res: Response) => {
-  const { data, branchId } = req.body as { data: CreateEmployee; branchId: number[] };
+  const { data, branchId } = req.body as {
+    data: CreateEmployee;
+    branchId: number[];
+  };
   const user = (req as CustomRequest).user;
 
   try {
@@ -66,6 +69,8 @@ export const createEmployee = async (req: Request, res: Response) => {
         password: newPassword,
         role: data.role,
         address: data.address,
+        pan: data.pan,
+        aadhar: data.aadhar,
         document: documentUrl, // Save the uploaded document URL
         location: {
           connect: { id: location.id }
@@ -164,6 +169,8 @@ export const getEmployeesById = async (req: Request, res: Response) => {
         address: true,
         phone: true,
         dob: true,
+        aadhar: true,
+        pan: true,
         branches: {
           select: {
             name: true

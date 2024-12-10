@@ -45,6 +45,8 @@ model User {
   phone      String?
   dob        DateTime?
   address    String?
+  aadhar     String?
+  pan        String?
   email      String    @unique
   password   String
 
