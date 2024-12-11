@@ -23,9 +23,12 @@ const AddUsers = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    watch
   } = useForm();
 
+  const selectedRole = watch("role");
+  const isEmployeeRole = selectedRole === Role.OF;
   // Fetch branch options from the API using RTK Query
   const { data: branchData, isLoading } = useGetAllBranchesQuery({});
 
@@ -206,7 +209,7 @@ const AddUsers = () => {
           </label>
           <input
             type='text'
-            {...register("aadhar")}
+            {...(register("aadhar"), { required: isEmployeeRole })}
             className={`p-2 border-gray-500 rounded-lg border-2`}
             placeholder='Aadhar Number'
           />
@@ -219,7 +222,7 @@ const AddUsers = () => {
           </label>
           <input
             type='text'
-            {...register("pan")}
+            {...(register("pan"), { required: isEmployeeRole })}
             className={`p-2 border-gray-500 rounded-lg border-2`}
             placeholder='PAN Number'
           />
@@ -256,7 +259,7 @@ const AddUsers = () => {
           <input
             type='file'
             accept='img'
-            {...register("document")}
+            {...(register("document"), { required: isEmployeeRole })}
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0) {
                 setSelectedFile(e.target.files[0]);
