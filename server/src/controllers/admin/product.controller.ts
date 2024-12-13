@@ -10,7 +10,6 @@ export const createProduct = async (req: Request, res: Response) => {
     await prisma.product.create({
       data: { name, organization: { connect: { id: user.organizationId } } }
     });
-
     apiResponse.success(res, {});
   } catch (error) {
     console.log(error);

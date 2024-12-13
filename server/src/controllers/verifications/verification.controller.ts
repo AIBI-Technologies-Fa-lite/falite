@@ -10,7 +10,19 @@ import { sendNotification } from "../../utils/notification";
 import { getFile } from "../../utils/documents";
 
 export const createVerification = async (req: Request, res: Response) => {
-  const { verificationData, caseId } = req.body as { verificationData: any; caseId: string };
+  const { verificationData, caseId } = req.body as {
+    verificationData: {
+      address: string;
+      pincode: string;
+      creRemarks: string;
+      verificationTypeId: string;
+      employeeId: string;
+      lat?: number;
+      long?: number;
+      phone: number;
+    };
+    caseId: string;
+  };
   const files = req.files as Express.Multer.File[];
   const user = (req as CustomRequest).user;
   try {
@@ -30,6 +42,9 @@ export const createVerification = async (req: Request, res: Response) => {
               id: parseInt(caseId, 10)
             }
           },
+          lat: verificationData.lat,
+          long: verificationData.long,
+          phone: verificationData.phone,
           creRemarks: verificationData.creRemarks,
           of: {
             connect: {
@@ -84,7 +99,12 @@ export const createVerification = async (req: Request, res: Response) => {
         }
       });
 
-      await sendNotification("New Verification Assigned", verification.of_id, NotificationType.VERIFICATION, verification.id);
+      await sendNotification(
+        "New Verification Assigned",
+        verification.of_id,
+        NotificationType.VERIFICATION,
+        verification.id
+      );
       return verification;
     });
 
@@ -121,7 +141,9 @@ export const getVerifications = async (req: Request, res: Response) => {
     // Filter based on user role
     if (user.role === "SUPERVISOR") {
       // Extract branch IDs from user.branches
-      const userBranchIds = user.branches.map((branch: { id: number }) => branch.id);
+      const userBranchIds = user.branches.map(
+        (branch: { id: number }) => branch.id
+      );
       whereClause.of = {
         branches: {
           some: { id: { in: userBranchIds } }
@@ -147,7 +169,9 @@ export const getVerifications = async (req: Request, res: Response) => {
           whereClause.case = {
             employee: {
               firstName: { contains: empName[0] || "", mode: "insensitive" },
-              ...(empName[1] && { lastName: { contains: empName[1], mode: "insensitive" } })
+              ...(empName[1] && {
+                lastName: { contains: empName[1], mode: "insensitive" }
+              })
             }
           };
           break;
@@ -187,7 +211,11 @@ export const getVerifications = async (req: Request, res: Response) => {
     const totalPages = Math.ceil(count / pageSize);
 
     // Send the response with pagination data
-    apiResponse.success(res, { verifications: verificationsWithTAT }, { pages: totalPages });
+    apiResponse.success(
+      res,
+      { verifications: verificationsWithTAT },
+      { pages: totalPages }
+    );
   } catch (err) {
     console.error("Error fetching verifications:", err);
     apiResponse.error(res, "An error occurred while fetching verifications.");
@@ -210,7 +238,9 @@ export const getBillingVerifications = async (req: Request, res: Response) => {
         verificationType: true
       }
     });
-    const count = await prisma.verification.count({ where: { of: { organizationId: user.organizationId }, billable: false } });
+    const count = await prisma.verification.count({
+      where: { of: { organizationId: user.organizationId }, billable: false }
+    });
     const totalPages = Math.ceil(count / 10);
     apiResponse.success(res, { verifications }, { pages: totalPages });
   } catch (err) {
@@ -276,7 +306,10 @@ export const getVerificationById = async (req: Request, res: Response) => {
 };
 export const ofResponse = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { reject = false, remarks = null }: { reject?: boolean; remarks?: string | null } = req.body;
+  const {
+    reject = false,
+    remarks = null
+  }: { reject?: boolean; remarks?: string | null } = req.body;
   try {
     if (reject) {
       const foundVerification = await prisma.verification.update({
@@ -285,12 +318,23 @@ export const ofResponse = async (req: Request, res: Response) => {
         include: { case: { select: { employeeId: true } } }
       });
 
-      await prisma.commonData.update({ where: { id: foundVerification.caseId }, data: { status: Status.REASSIGN } });
+      await prisma.commonData.update({
+        where: { id: foundVerification.caseId },
+        data: { status: Status.REASSIGN }
+      });
 
-      await sendNotification("Verification Rejected", foundVerification.case.employeeId, NotificationType.VERIFICATION, foundVerification.id);
+      await sendNotification(
+        "Verification Rejected",
+        foundVerification.case.employeeId,
+        NotificationType.VERIFICATION,
+        foundVerification.id
+      );
       apiResponse.success(res, {});
     } else {
-      await prisma.verification.update({ where: { id: parseInt(id) }, data: { status: Status.ONGOING } });
+      await prisma.verification.update({
+        where: { id: parseInt(id) },
+        data: { status: Status.ONGOING }
+      });
       apiResponse.success(res, {});
     }
   } catch (err) {
@@ -300,7 +344,10 @@ export const ofResponse = async (req: Request, res: Response) => {
 };
 export const markBilling = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
-  const { ofBillable, clientBillable } = req.body as { ofBillable: boolean; clientBillable: boolean };
+  const { ofBillable, clientBillable } = req.body as {
+    ofBillable: boolean;
+    clientBillable: boolean;
+  };
   try {
     const verification = await prisma.verification.update({
       where: { id: parseInt(id) },
@@ -312,7 +359,7 @@ export const markBilling = async (req: Request, res: Response) => {
     });
     apiResponse.success(res, {});
   } catch (err) {
-  apiResponse.error(res);
+    apiResponse.error(res);
   }
 };
 export const submitVerification = async (req: Request, res: Response) => {
@@ -358,12 +405,18 @@ export const submitVerification = async (req: Request, res: Response) => {
         });
 
         // Await both promises in parallel
-        const [origin, verification] = await Promise.all([originPromise, verificationPromise]);
+        const [origin, verification] = await Promise.all([
+          originPromise,
+          verificationPromise
+        ]);
         if (!origin) throw new Error("Origin coordinates not found");
 
         const response = await directionsClient
           .getDirections({
-            waypoints: [{ coordinates: [origin.longitude, origin.latitude] }, { coordinates: [coords.longitude, coords.latitude] }],
+            waypoints: [
+              { coordinates: [origin.longitude, origin.latitude] },
+              { coordinates: [coords.longitude, coords.latitude] }
+            ],
             profile: "driving",
             geometries: "geojson"
           })
@@ -391,7 +444,12 @@ export const submitVerification = async (req: Request, res: Response) => {
             where: { id: verification.case.id },
             data: { status: Status.REVIEW }
           });
-          sendNotification("Case Review", verification.case.employeeId, NotificationType.CASE, verification.case.id);
+          sendNotification(
+            "Case Review",
+            verification.case.employeeId,
+            NotificationType.CASE,
+            verification.case.id
+          );
         }
 
         // Update user start location
@@ -428,7 +486,12 @@ export const submitVerification = async (req: Request, res: Response) => {
     );
 
     // Send final notification outside transaction to avoid delays
-    sendNotification("Verification Completed", transaction.case.employeeId, NotificationType.CASE, transaction.case.id);
+    sendNotification(
+      "Verification Completed",
+      transaction.case.employeeId,
+      NotificationType.CASE,
+      transaction.case.id
+    );
 
     // Respond with success status
     apiResponse.success(res, {});
@@ -444,7 +507,9 @@ export const reopenVerification = async (req: Request, res: Response) => {
   const user = (req as CustomRequest).user;
   try {
     const transaction = await prisma.$transaction(async (tx) => {
-      const deleteDocs = await prisma.document.deleteMany({ where: { verificationId: parseInt(id), employeeId: { not: user.id } } });
+      const deleteDocs = await prisma.document.deleteMany({
+        where: { verificationId: parseInt(id), employeeId: { not: user.id } }
+      });
       const updatedVerification = await tx.verification.update({
         where: { id: parseInt(id) },
         data: {
@@ -464,7 +529,9 @@ export const reopenVerification = async (req: Request, res: Response) => {
         }
       });
       if (updatedVerification.destinationId) {
-        await tx.coordinates.delete({ where: { id: updatedVerification.destinationId } });
+        await tx.coordinates.delete({
+          where: { id: updatedVerification.destinationId }
+        });
       }
 
       const updatedCase = await tx.commonData.update({
@@ -477,7 +544,12 @@ export const reopenVerification = async (req: Request, res: Response) => {
       return updatedVerification;
     });
 
-    sendNotification("New Verification", of_id, NotificationType.VERIFICATION, parseInt(id));
+    sendNotification(
+      "New Verification",
+      of_id,
+      NotificationType.VERIFICATION,
+      parseInt(id)
+    );
 
     apiResponse.success(res, { verification: transaction });
   } catch (err) {

@@ -1,5 +1,3 @@
-
-
 model Verification {
   id Int @id @default(autoincrement())
 
@@ -8,6 +6,10 @@ model Verification {
 
   pincode Int
   address String
+
+  lat  Float?
+  long Float?
+  phone Int
 
   caseId Int
   case   CommonData @relation(fields: [caseId], references: [id])
