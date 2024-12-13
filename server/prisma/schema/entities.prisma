@@ -1,0 +1,54 @@
+model VerificationType {
+  id             Int            @id @default(autoincrement())
+  organizationId Int
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  name           String
+  formId         String
+  deleted        Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  Verification   Verification[]
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  code      String
+  name      String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Product {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Organization {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  employees User[]
+  branches  Branch[]
+
+  verificationTypes VerificationType[]
+
+  formApiKey String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Branch {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  users User[] @relation("UserBranches")
+
+  name String
+  code String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

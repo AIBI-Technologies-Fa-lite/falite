@@ -1,14 +1,4 @@
-model VerificationType {
-  id             Int            @id @default(autoincrement())
-  organizationId Int
-  organization   Organization   @relation(fields: [organizationId], references: [id])
-  name           String
-  formId         String
-  deleted        Boolean        @default(false)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  Verification   Verification[]
-}
+
 
 model Verification {
   id Int @id @default(autoincrement())
