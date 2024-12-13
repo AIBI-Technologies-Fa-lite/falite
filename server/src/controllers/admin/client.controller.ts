@@ -17,6 +17,7 @@ export const createClient = async (req: Request, res: Response) => {
         }
       }
     });
+    apiResponse.success(res, {});
   } catch (error) {
     console.log(error);
     apiResponse.error(res);

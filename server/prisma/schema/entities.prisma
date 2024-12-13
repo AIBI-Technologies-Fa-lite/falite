@@ -25,6 +25,12 @@ model Client {
 model Product {
   id   Int    @id @default(autoincrement())
   name String
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Organization {
@@ -40,8 +46,9 @@ model Organization {
 
   clients Client[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Product   Product[]
 }
 
 model Branch {
