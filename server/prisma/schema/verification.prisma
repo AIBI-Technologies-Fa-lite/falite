@@ -24,11 +24,11 @@ model Verification {
   of_id Int
   of    User @relation(fields: [of_id], references: [id])
 
-  documents Document[]
-
-  billable       Boolean @default(false)
-  clientBillable Boolean @default(false)
-  ofBillable     Boolean @default(false)
+  documents      Document[]
+  tracability    Boolean? 
+  billable       Boolean    @default(false)
+  clientBillable Boolean    @default(false)
+  ofBillable     Boolean    @default(false)
 
   status Status
   final  Int    @default(0)
