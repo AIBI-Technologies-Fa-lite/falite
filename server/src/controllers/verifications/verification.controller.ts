@@ -500,7 +500,6 @@ export const submitVerification = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
-
 export const reopenVerification = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { of_id } = req.body as { of_id: number };

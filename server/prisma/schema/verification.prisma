@@ -7,8 +7,8 @@ model Verification {
   pincode Int
   address String
 
-  lat  Float?
-  long Float?
+  lat   Float?
+  long  Float?
   phone Int
 
   caseId Int
@@ -63,4 +63,5 @@ model Document {
   verification   Verification @relation(fields: [verificationId], references: [id])
   employeeId     Int
   employee       User         @relation(fields: [employeeId], references: [id])
+  createdAt      DateTime     @default(now())
 }
