@@ -5,7 +5,6 @@ const CreDashboard = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
   return (
     <div className='flex flex-col w-full gap-10 md:flex-row'>
       <div className='flex flex-col flex-1 gap-6'>
