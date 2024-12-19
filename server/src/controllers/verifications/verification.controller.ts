@@ -17,6 +17,7 @@ export const createVerification = async (req: Request, res: Response) => {
       creRemarks: string;
       verificationTypeId: string;
       employeeId: string;
+      priority: boolean;
       lat?: number;
       long?: number;
       phone: number;
