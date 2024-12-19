@@ -20,10 +20,11 @@ const ViewVerifications: React.FC = () => {
   const role = useSelector((state: RootState) => state.auth.user?.role as Role);
 
   // Map pathnames to status values
-  const statusMap: Record<string, number> = {
-    "/verification/pending": 1,
-    "/verification/new": 0,
-    "/verification/completed": 3
+  const statusMap: Record<string, string> = {
+    "/verification/pending": "inprogress",
+    "/verification/new": "new",
+    "/verification/completed": "completed",
+    "/verification/working": "working"
   };
 
   const [searchInput, setSearchInput] = useState<string>("");
@@ -32,7 +33,7 @@ const ViewVerifications: React.FC = () => {
   const [searchColumn, setSearchColumn] = useState<string>("clientName");
   const [debouncedSearchColumn, setDebouncedSearchColumn] =
     useState<string>("");
-  const [statusInput, setStatusInput] = useState<number>(-1); // Default to -1 (All)
+  const [statusInput, setStatusInput] = useState<string>("1"); // Default to -1 (All)
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, _] = useState<number>(10);

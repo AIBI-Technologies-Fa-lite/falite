@@ -122,14 +122,14 @@ export const getVerifications = async (req: Request, res: Response) => {
     limit = "10",
     search = "",
     searchColumn = "",
-    status = "0",
+    status = "new",
     order = "desc"
   } = req.query as {
     page?: string;
     limit?: string;
     search?: string;
     searchColumn?: "clientName" | "creName" | "ofName" | "id";
-    status?: string;
+    status?: "new" | "inprogress" | "working" | "priority";
     order?: "asc" | "desc";
   };
 
@@ -139,7 +139,6 @@ export const getVerifications = async (req: Request, res: Response) => {
     const skipAmount: number = (pageNumber - 1) * pageSize;
     const statusFilter: number = parseInt(status, 10);
     let whereClause: any = {};
-    // Filter based on user role
     if (user.role === "SUPERVISOR") {
       // Extract branch IDs from user.branches
       const userBranchIds = user.branches.map(
@@ -155,12 +154,11 @@ export const getVerifications = async (req: Request, res: Response) => {
       whereClause.status = { not: Status.REJECTED };
     }
 
-    // Search condition based on the search column
     if (search && searchColumn) {
       const empName = search.split(" ");
       switch (searchColumn) {
         case "clientName":
-          whereClause.clientName = { contains: search, mode: "insensitive" };
+          whereClause.clientName = { contains: search };
           break;
         case "id":
           whereClause.id = parseInt(search, 10);
@@ -169,9 +167,9 @@ export const getVerifications = async (req: Request, res: Response) => {
         case "ofName":
           whereClause.case = {
             employee: {
-              firstName: { contains: empName[0] || "", mode: "insensitive" },
+              firstName: { contains: empName[0] || "" },
               ...(empName[1] && {
-                lastName: { contains: empName[1], mode: "insensitive" }
+                lastName: { contains: empName[1] }
               })
             }
           };
@@ -180,7 +178,17 @@ export const getVerifications = async (req: Request, res: Response) => {
           break;
       }
     }
+    if (status) {
+      switch (status) {
+        case "new":
+          whereClause.status = Status.PENDING;
+          break;
+        case "inprogress":
+          whereClause.status = { notIn: [Status.REJECTED, Status.PENDING] };
+      }
+    }
 
+    console.log(whereClause);
     // Fetch verifications with pagination
     const verifications = await prisma.verification.findMany({
       where: whereClause,
@@ -217,11 +225,12 @@ export const getVerifications = async (req: Request, res: Response) => {
       { verifications: verificationsWithTAT },
       { pages: totalPages }
     );
-  } catch (err) {
-    console.error("Error fetching verifications:", err);
-    apiResponse.error(res, "An error occurred while fetching verifications.");
+  } catch (error) {
+    console.log(error);
+    apiResponse.error(res);
   }
 };
+
 export const getBillingVerifications = async (req: Request, res: Response) => {
   const user = (req as CustomRequest).user;
   try {
