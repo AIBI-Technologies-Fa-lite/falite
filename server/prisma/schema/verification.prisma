@@ -25,7 +25,9 @@ model Verification {
   of    User @relation(fields: [of_id], references: [id])
 
   documents      Document[]
-  tracability    Boolean? 
+  working        Boolean    @default(false)
+  priority       Boolean    @default(false)
+  tracability    Boolean?
   billable       Boolean    @default(false)
   clientBillable Boolean    @default(false)
   ofBillable     Boolean    @default(false)

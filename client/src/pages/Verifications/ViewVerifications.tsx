@@ -7,17 +7,24 @@ import {
   getSortedRowModel,
   SortingState
 } from "@tanstack/react-table";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useGetAllVerificationsQuery } from "@api/verificationApi";
 import { convertToIST } from "@utils/time";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { RootState } from "src/store"; // Assuming you have a RootState type for your redux state
 import { Role } from "@constants/enum";
-import { Status } from "@constants/enum";
 const ViewVerifications: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const role = useSelector((state: RootState) => state.auth.user?.role as Role);
+
+  // Map pathnames to status values
+  const statusMap: Record<string, number> = {
+    "/verification/pending": 1,
+    "/verification/new": 0,
+    "/verification/completed": 3
+  };
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearchInput, setDebouncedSearchInput] =
@@ -25,10 +32,16 @@ const ViewVerifications: React.FC = () => {
   const [searchColumn, setSearchColumn] = useState<string>("clientName");
   const [debouncedSearchColumn, setDebouncedSearchColumn] =
     useState<string>("");
-  const [statusInput, setStatusInput] = useState(0);
+  const [statusInput, setStatusInput] = useState<number>(-1); // Default to -1 (All)
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, _] = useState<number>(10);
+
+  useEffect(() => {
+    // Set statusInput based on the current pathname
+    const newStatus = statusMap[location.pathname] ?? -1; // Default to -1 if no match
+    setStatusInput(newStatus);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -48,6 +61,7 @@ const ViewVerifications: React.FC = () => {
     sort: sorting.length > 0 ? sorting[0].id : undefined,
     order: sorting.length > 0 ? (sorting[0].desc ? "desc" : "asc") : undefined
   });
+
   useEffect(() => {
     if (error) {
       toast.error("An error occurred while fetching verifications.");
@@ -92,21 +106,6 @@ const ViewVerifications: React.FC = () => {
         enableSorting: false
       },
       {
-        header: "Status",
-        accessorKey: "status",
-        cell: (info) => {
-          const status = info.getValue();
-          if (status === Status.PENDING)
-            return <div className='text-orange-500'>Pending</div>;
-          if (status === Status.ONGOING)
-            return <div className='text-yellow-500'>In Progress</div>;
-          if (status === Status.REASSIGN)
-            return <div className='text-red-500'>Reassign</div>;
-          return <div className='text-green-500'>Completed</div>;
-        },
-        enableSorting: false
-      },
-      {
         header: "Assigned At",
         accessorKey: "createdAt",
         cell: (info) => convertToIST(info.getValue()),
@@ -146,7 +145,6 @@ const ViewVerifications: React.FC = () => {
     return commonColumns;
   }, [navigate, role]);
 
-  // Update `pageCount` in `useReactTable`
   const table = useReactTable({
     data: data?.data.verifications || [],
     columns,
@@ -156,7 +154,7 @@ const ViewVerifications: React.FC = () => {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
-    pageCount: data?.meta.pages || 0 // Default to 1 if no pages data to avoid issues
+    pageCount: data?.meta.pages || 0
   });
 
   const currentPage = table.getState().pagination.pageIndex;
@@ -180,7 +178,6 @@ const ViewVerifications: React.FC = () => {
       </div>
     );
   }
-
   return (
     <div>
       <div className='flex flex-col gap-2 mb-6 md:flex-row md:justify-between'>
@@ -209,18 +206,6 @@ const ViewVerifications: React.FC = () => {
             <option value='id'>ID</option>
           </select>
         </div>
-        <select
-          value={statusInput}
-          onChange={(e) => setStatusInput(Number(e.target.value))}
-          className='px-2 py-1 border border-gray-300 rounded-md'
-          aria-label='Select status to filter'
-        >
-          <option value='-1'>All</option>
-          <option value='0'>Pending</option>
-          <option value='1'>In Progress</option>
-          {role !== "OF" && <option value='2'>Reassign</option>}
-          <option value='3'>Completed</option>
-        </select>
       </div>
 
       <div className='overflow-x-auto'>

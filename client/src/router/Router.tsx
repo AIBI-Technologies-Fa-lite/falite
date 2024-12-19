@@ -92,13 +92,26 @@ const creRoutes = {
 };
 const verificationRoutes = {
   path: "/",
-  element: <RoleGuard allowedRoles={[Role.CRE, Role.SUPERVISOR, Role.OF, Role.ACCOUNTS]} children={<Layout />} />,
+  element: (
+    <RoleGuard
+      allowedRoles={[Role.CRE, Role.SUPERVISOR, Role.OF, Role.ACCOUNTS]}
+      children={<Layout />}
+    />
+  ),
   children: [
     {
       path: "/verification",
       children: [
         {
-          path: "/verification",
+          path: "/verification/new",
+          element: <ViewVerifications />
+        },
+        {
+          path: "/verification/pending",
+          element: <ViewVerifications />
+        },
+        {
+          path: "/verification/completed",
           element: <ViewVerifications />
         },
         {
@@ -130,7 +143,12 @@ const billingRoutes = {
 
 const gpsRoutes = {
   path: "/gps",
-  element: <RoleGuard allowedRoles={[Role.SUPERVISOR, Role.CRE]} children={<Layout />} />,
+  element: (
+    <RoleGuard
+      allowedRoles={[Role.SUPERVISOR, Role.CRE]}
+      children={<Layout />}
+    />
+  ),
   children: [
     {
       path: "/gps",
@@ -162,7 +180,11 @@ const router = createBrowserRouter([
   },
   {
     path: "*",
-    element: <div className="h-screen flex justify-center items-center text-4xl font-bold">Not Found</div>
+    element: (
+      <div className='h-screen flex justify-center items-center text-4xl font-bold'>
+        Not Found
+      </div>
+    )
   }
 ]);
 
