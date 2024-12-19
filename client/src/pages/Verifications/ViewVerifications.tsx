@@ -29,9 +29,7 @@ const ViewVerifications: React.FC = () => {
   };
 
   // Initialize `statusInput` based on the current pathname
-  const [statusInput, setStatusInput] = useState<string>(
-    statusMap[location.pathname] ?? "-1" // Default to "-1" if no match
-  );
+  const statusInput = statusMap[location.pathname] ?? "-1";
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearchInput, setDebouncedSearchInput] =
