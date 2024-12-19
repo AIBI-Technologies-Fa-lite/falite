@@ -111,6 +111,14 @@ const verificationRoutes = {
           element: <ViewVerifications />
         },
         {
+          path: "/verification/working",
+          element: <ViewVerifications />
+        },
+        {
+          path: "/verification/priority",
+          element: <ViewVerifications />
+        },
+        {
           path: "/verification/completed",
           element: <ViewVerifications />
         },

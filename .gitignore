@@ -1,6 +1,7 @@
 node_modules
 .env
 dbml
+frontend
 
 logs
 *.log

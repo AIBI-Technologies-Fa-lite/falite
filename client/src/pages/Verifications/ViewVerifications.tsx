@@ -23,9 +23,15 @@ const ViewVerifications: React.FC = () => {
   const statusMap: Record<string, string> = {
     "/verification/pending": "inprogress",
     "/verification/new": "new",
+    "/verification/priority": "priority",
     "/verification/completed": "completed",
     "/verification/working": "working"
   };
+
+  // Initialize `statusInput` based on the current pathname
+  const [statusInput, setStatusInput] = useState<string>(
+    statusMap[location.pathname] ?? "-1" // Default to "-1" if no match
+  );
 
   const [searchInput, setSearchInput] = useState<string>("");
   const [debouncedSearchInput, setDebouncedSearchInput] =
@@ -33,16 +39,9 @@ const ViewVerifications: React.FC = () => {
   const [searchColumn, setSearchColumn] = useState<string>("clientName");
   const [debouncedSearchColumn, setDebouncedSearchColumn] =
     useState<string>("");
-  const [statusInput, setStatusInput] = useState<string>("1"); // Default to -1 (All)
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState<number>(0);
   const [pageSize, _] = useState<number>(10);
-
-  useEffect(() => {
-    // Set statusInput based on the current pathname
-    const newStatus = statusMap[location.pathname] ?? -1; // Default to -1 if no match
-    setStatusInput(newStatus);
-  }, [location.pathname]);
 
   useEffect(() => {
     const handler = setTimeout(() => {

@@ -69,6 +69,21 @@ const NavLinks: NavLink[] = [
       {
         name: "Pending",
         path: "/verification/pending",
+        Roles: [Role.OF, Role.SUPERVISOR]
+      },
+      {
+        name: "Priority",
+        path: "/verification/priority",
+        Roles: [Role.OF, Role.SUPERVISOR]
+      },
+      {
+        name: "Working",
+        path: "/verification/working",
+        Roles: [Role.OF, Role.SUPERVISOR]
+      },
+      {
+        name: "Completed",
+        path: "/verification/completed",
         Roles: [Role.OF, Role.SUPERVISOR, Role.ACCOUNTS]
       },
       {

@@ -129,7 +129,7 @@ export const getVerifications = async (req: Request, res: Response) => {
     limit?: string;
     search?: string;
     searchColumn?: "clientName" | "creName" | "ofName" | "id";
-    status?: "new" | "inprogress" | "working" | "priority";
+    status?: "new" | "inprogress" | "working" | "priority" | "completed";
     order?: "asc" | "desc";
   };
 
@@ -185,10 +185,17 @@ export const getVerifications = async (req: Request, res: Response) => {
           break;
         case "inprogress":
           whereClause.status = { notIn: [Status.REJECTED, Status.PENDING] };
+          break;
+        case "priority":
+          whereClause.priority = true;
+        case "working":
+          whereClause.working = true;
+        case "completed":
+          whereClause.final = 1;
+        default:
+          break;
       }
     }
-
-    console.log(whereClause);
     // Fetch verifications with pagination
     const verifications = await prisma.verification.findMany({
       where: whereClause,
