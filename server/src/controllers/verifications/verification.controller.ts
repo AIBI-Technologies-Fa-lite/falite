@@ -137,7 +137,6 @@ export const getVerifications = async (req: Request, res: Response) => {
     const pageNumber: number = parseInt(page, 10);
     const pageSize: number = parseInt(limit, 10);
     const skipAmount: number = (pageNumber - 1) * pageSize;
-    const statusFilter: number = parseInt(status, 10);
     let whereClause: any = {};
     if (user.role === "SUPERVISOR") {
       // Extract branch IDs from user.branches
@@ -185,11 +184,15 @@ export const getVerifications = async (req: Request, res: Response) => {
           break;
         case "inprogress":
           whereClause.status = { notIn: [Status.REJECTED, Status.PENDING] };
+          whereClause.final = 0;
+          whereClause.working = false;
           break;
         case "priority":
           whereClause.priority = true;
+          whereClause.final = 0;
         case "working":
           whereClause.working = true;
+          whereClause.final = 0;
         case "completed":
           whereClause.final = 1;
         default:
@@ -316,6 +319,20 @@ export const getVerificationById = async (req: Request, res: Response) => {
       ))
     );
 
+    apiResponse.success(res, { verification: verificationData });
+  } catch (err) {
+    apiResponse.error(res);
+  }
+};
+export const makrWorking = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  try {
+    const vid: number = parseInt(id);
+    const verificationData = await prisma.verification.update({
+      where: { id: vid },
+      data: { working: true }
+    });
     apiResponse.success(res, { verification: verificationData });
   } catch (err) {
     apiResponse.error(res);
