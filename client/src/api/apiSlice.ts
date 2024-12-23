@@ -1,4 +1,10 @@
-import { BaseQueryFn, FetchArgs, fetchBaseQuery, FetchBaseQueryError, createApi } from "@reduxjs/toolkit/query/react";
+import {
+  BaseQueryFn,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+  createApi
+} from "@reduxjs/toolkit/query/react";
 import { logout, changeSession } from "@providers/authSlice";
 import { BASE_URL } from "src/config/api";
 const baseQuery = fetchBaseQuery({
@@ -6,7 +12,11 @@ const baseQuery = fetchBaseQuery({
   credentials: "include"
 });
 
-const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args, api, extraOptions) => {
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
   // Check for 401 Unauthorized status
@@ -22,7 +32,15 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const authApiSlice = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["branches", "users", "vt", "verifications", "cases", "verification", "notifications"],
+  tagTypes: [
+    "branches",
+    "users",
+    "vt",
+    "verifications",
+    "cases",
+    "verification",
+    "notifications"
+  ],
   // @ts-ignore:
   endpoints: (builder) => ({})
 });

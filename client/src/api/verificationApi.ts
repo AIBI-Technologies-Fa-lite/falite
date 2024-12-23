@@ -10,7 +10,15 @@ const verificationApi = authApiSlice.injectEndpoints({
       })
     }),
     getCases: builder.query({
-      query: ({ page = 1, limit = 10, search, order, searchColumn, status, final }) => ({
+      query: ({
+        page = 1,
+        limit = 10,
+        search,
+        order,
+        searchColumn,
+        status,
+        final
+      }) => ({
         url: "/verification/case",
         method: "GET",
         params: { page, limit, search, searchColumn, order, status, final }
@@ -38,7 +46,14 @@ const verificationApi = authApiSlice.injectEndpoints({
       })
     }),
     getAllVerifications: builder.query({
-      query: ({ page = 1, limit = 10, search, searchColumn, status, order }) => ({
+      query: ({
+        page = 1,
+        limit = 10,
+        search,
+        searchColumn,
+        status,
+        order
+      }) => ({
         url: "/verification",
         method: "GET",
         params: { page, limit, search, searchColumn, status, order }
@@ -103,11 +118,18 @@ const verificationApi = authApiSlice.injectEndpoints({
         method: "PUT",
         body: { ofBillable, clientBillable }
       })
+    }),
+    markWorking: builder.mutation({
+      query: ({ id }) => ({
+        url: `/verification/mark/${id}`,
+        method: "PUT"
+      })
     })
   })
 });
 
 export const {
+  useMarkWorkingMutation,
   useCreateCaseMutation,
   useGetCaseByIdQuery,
   useCreateVerificationMutation,

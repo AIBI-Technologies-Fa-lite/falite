@@ -190,11 +190,14 @@ export const getVerifications = async (req: Request, res: Response) => {
         case "priority":
           whereClause.priority = true;
           whereClause.final = 0;
+          break;
         case "working":
           whereClause.working = true;
           whereClause.final = 0;
+          break;
         case "completed":
           whereClause.final = 1;
+          break;
         default:
           break;
       }
@@ -240,7 +243,6 @@ export const getVerifications = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
-
 export const getBillingVerifications = async (req: Request, res: Response) => {
   const user = (req as CustomRequest).user;
   try {
@@ -324,7 +326,7 @@ export const getVerificationById = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
-export const makrWorking = async (req: Request, res: Response) => {
+export const makrkWorking = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
 
   try {
