@@ -30,7 +30,6 @@ const FieldDashboard = () => {
       }
     );
   };
-
   return (
     <div className='flex flex-col w-full gap-10 pb-4'>
       <div>
@@ -48,7 +47,7 @@ const FieldDashboard = () => {
         )}
       </div>
 
-      {isLoading ? (
+      {isLoading || !data ? (
         <div>Loading...</div>
       ) : (
         <div className='flex flex-col flex-1 gap-6'>
