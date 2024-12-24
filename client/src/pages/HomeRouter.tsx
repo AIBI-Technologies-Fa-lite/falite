@@ -1,6 +1,6 @@
 import { selectUser } from "@providers/authSlice";
 import { useSelector } from "react-redux";
-import FieldDashboard from "./Dashboard/FieldDashboard";
+import FieldDashboard from "./Dashboard/MainDashboard";
 import CreDashboard from "./Dashboard/CreDashboard";
 import DirectorDashboard from "./Dashboard/DirectorDashboard";
 const HomeRouter = () => {

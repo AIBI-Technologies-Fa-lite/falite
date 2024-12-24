@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useGetVerificationCountQuery } from "@api/reportingApi";
 import InfoCard from "@components/InfoCard";
+import { Role } from "@constants/enum";
 const FieldDashboard = () => {
   const { data, isLoading } = useGetVerificationCountQuery({});
   const user = useSelector(selectUser);
@@ -32,20 +33,22 @@ const FieldDashboard = () => {
   };
   return (
     <div className='flex flex-col w-full gap-10 pb-4'>
-      <div>
-        {!user?.working ? (
-          <button
-            className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'
-            onClick={startDay}
-          >
-            Start Day
-          </button>
-        ) : (
-          <button className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'>
-            End Day
-          </button>
-        )}
-      </div>
+      {user?.role == Role.OF && (
+        <div>
+          {!user?.working ? (
+            <button
+              className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'
+              onClick={startDay}
+            >
+              Start Day
+            </button>
+          ) : (
+            <button className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'>
+              End Day
+            </button>
+          )}
+        </div>
+      )}
 
       {isLoading || !data ? (
         <div>Loading...</div>
