@@ -56,8 +56,14 @@ const UserInfo = ({ user }: { user: User }) => {
           value={formatDateToDDMMYYYY(user.dob)}
         />
       )}
-      {user.aadhar && <UserDetails label='Aadhar Number' value={user.aadhar} />}
-      {user.pan && <UserDetails label='PAN Number' value={user.pan} />}
+      {user.aadhar != null ||
+        (user.aadhar != undefined && (
+          <UserDetails label='Aadhar Number' value={user.aadhar} />
+        ))}
+      {user.pan != null ||
+        (user.pan != undefined && (
+          <UserDetails label='PAN Number' value={user.pan} />
+        ))}
       {user.bloodGroup && (
         <UserDetails label='Blood Group' value={user.bloodGroup} />
       )}
