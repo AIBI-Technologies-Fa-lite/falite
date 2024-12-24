@@ -4,7 +4,7 @@ import { verifyJWT } from "../../middlewares/auth";
 
 import superRouter from "./super.routes";
 import authRouter from "./auth.routes";
-import branchRouter from "./branch.routes";
+import setupRouter from "./setup.routes";
 import userRouter from "./user.routes";
 import vtRouter from "./verificationType.routes";
 import verificationRouter from "./verification.routes";
@@ -18,7 +18,7 @@ v1Router.use("/auth", authRouter);
 
 v1Router.use(verifyJWT as any);
 v1Router.use("/notification", notificationRouter);
-v1Router.use("/branch", branchRouter);
+v1Router.use("/setup", setupRouter);
 v1Router.use("/user", userRouter);
 v1Router.use("/vt", vtRouter);
 v1Router.use("/verification", verificationRouter);

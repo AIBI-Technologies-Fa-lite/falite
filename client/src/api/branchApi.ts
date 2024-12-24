@@ -9,7 +9,7 @@ const branchApi = authApiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createBranch: builder.mutation<any, { branch: CreateBranch }>({
       query: ({ branch }) => ({
-        url: "/branch",
+        url: "/setup/branch",
         method: "POST",
         body: { branch }
       }),
@@ -17,7 +17,7 @@ const branchApi = authApiSlice.injectEndpoints({
     }),
     getBranches: builder.query({
       query: ({ page = 1, limit = 10, search, searchColumn, order }) => ({
-        url: `/branch`,
+        url: `/setup/branch`,
         method: "GET",
         params: { page, limit, search, searchColumn, order }
       }),
@@ -25,14 +25,14 @@ const branchApi = authApiSlice.injectEndpoints({
     }),
     deleteBranch: builder.mutation({
       query: (id: string) => ({
-        url: `/branch/${id}`,
+        url: `/setup/branch/${id}`,
         method: "DELETE"
       }),
       invalidatesTags: ["branches"]
     }),
     getAllBranches: builder.query({
       query: () => ({
-        url: `/branch/all`,
+        url: `/setup/branch/all`,
         method: "GET"
       }),
       providesTags: ["branches"]
@@ -40,4 +40,9 @@ const branchApi = authApiSlice.injectEndpoints({
   })
 });
 
-export const { useCreateBranchMutation, useGetBranchesQuery, useDeleteBranchMutation, useGetAllBranchesQuery } = branchApi;
+export const {
+  useCreateBranchMutation,
+  useGetBranchesQuery,
+  useDeleteBranchMutation,
+  useGetAllBranchesQuery
+} = branchApi;
