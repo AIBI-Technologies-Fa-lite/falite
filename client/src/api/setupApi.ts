@@ -20,14 +20,14 @@ const clientApi = authApiSlice.injectEndpoints({
         method: "GET",
         params: { page, limit, search, searchColumn, order }
       }),
-      providesTags: ["branches"]
+      providesTags: ["clients"]
     }),
     deleteClient: builder.mutation({
       query: (id: string) => ({
         url: `/setup/client/${id}`,
         method: "DELETE"
       }),
-      invalidatesTags: ["branches"]
+      invalidatesTags: ["clients"]
     })
   })
 });
@@ -66,7 +66,33 @@ const branchApi = authApiSlice.injectEndpoints({
     })
   })
 });
-
+const productApi = authApiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    createProduct: builder.mutation({
+      query: ({ name }) => ({
+        url: "/setup/product",
+        method: "POST",
+        body: { name }
+      }),
+      invalidatesTags: ["products"]
+    }),
+    getProducts: builder.query({
+      query: ({ page = 1, limit = 10, search, order }) => ({
+        url: `/setup/product`,
+        method: "GET",
+        params: { page, limit, search, order }
+      }),
+      providesTags: ["products"]
+    }),
+    deleteProduct: builder.mutation({
+      query: (id: string) => ({
+        url: `/setup/product/${id}`,
+        method: "DELETE"
+      }),
+      invalidatesTags: ["products"]
+    })
+  })
+});
 export const {
   useCreateBranchMutation,
   useGetBranchesQuery,
@@ -79,3 +105,9 @@ export const {
   useGetClientsQuery,
   useDeleteClientMutation
 } = clientApi;
+
+export const {
+  useGetProductsQuery,
+  useCreateProductMutation,
+  useDeleteProductMutation
+} = productApi;

@@ -39,7 +39,9 @@ export const authApiSlice = createApi({
     "verifications",
     "cases",
     "verification",
-    "notifications"
+    "notifications",
+    "clients",
+    "products"
   ],
   // @ts-ignore:
   endpoints: (builder) => ({})
