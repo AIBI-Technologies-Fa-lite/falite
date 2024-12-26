@@ -22,6 +22,10 @@ import ViewVerifications from "@pages/Verifications/ViewVerifications";
 import ViewVerification from "@pages/Verifications/ViewVerification";
 import Tracking from "@pages/GPS/Tracking";
 import Billing from "@pages/Verifications/Billing";
+import AddClient from "@pages/Admin/AddClient";
+import AddProduct from "@pages/Admin/AddProduct";
+import ViewClients from "@pages/Admin/ViewClients";
+import ViewProducts from "@pages/Admin/ViewProducts";
 
 import { Role } from "@constants/enum";
 
@@ -48,16 +52,29 @@ const adminRoutes = {
       ]
     },
     {
-      path: "/branch",
+      path: "/setup",
       children: [
         {
-          path: "/branch",
+          path: "/setup/branch",
           element: <ViewBranches />
         },
         {
-          path: "/branch/add",
+          path: "/setup/branch/add",
           element: <AddBranch />
-        }
+        },
+        {
+          path: "/setup/client",
+          element: <ViewClients />
+        },
+        {
+          path: "/setup/client/add",
+          element: <AddClient />
+        },
+        {
+          path: "/setup/product",
+          element: <ViewProducts />
+        },
+        { path: "/setup/product/add", element: <AddProduct /> }
       ]
     },
     {

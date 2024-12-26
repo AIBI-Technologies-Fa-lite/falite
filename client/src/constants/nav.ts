@@ -32,14 +32,18 @@ const NavLinks: NavLink[] = [
     ]
   },
   {
-    name: "Branches",
+    name: "Setup",
     icon: LuUsers,
     hasSub: true,
-    path: "/branch",
+    path: "/setup",
     Roles: [Role.ADMIN],
     sub: [
-      { name: "Add Branch", path: "/branch/add", Roles: [Role.ADMIN] },
-      { name: "View Branches", path: "/branch", Roles: [Role.ADMIN] }
+      { name: "Add Branch", path: "/setup/branch/add", Roles: [Role.ADMIN] },
+      { name: "View Branches", path: "/setup/branch", Roles: [Role.ADMIN] },
+      { name: "Add Client", path: "/setup/client/add", Roles: [Role.ADMIN] },
+      { name: "View Client", path: "/setup/client", Roles: [Role.ADMIN] },
+      { name: "Add Product", path: "/setup/client/add", Roles: [Role.ADMIN] },
+      { name: "View Products", path: "/setup/client", Roles: [Role.ADMIN] }
     ]
   },
   {
