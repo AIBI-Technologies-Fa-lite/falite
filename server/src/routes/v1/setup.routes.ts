@@ -5,7 +5,11 @@ import {
   deleteBranch,
   getAllBranches
 } from "../../controllers/user/branch.controller";
-import { createClient } from "../../controllers/admin/client.controller";
+import {
+  createClient,
+  getClients,
+  deleteClient
+} from "../../controllers/admin/client.controller";
 import { createProduct } from "../../controllers/admin/product.controller";
 import { roleMiddleware } from "../../middlewares/auth";
 import { Role } from "@prisma/client";
@@ -19,6 +23,8 @@ setupRouter.get("/branch/all", getAllBranches);
 setupRouter.delete("/branch/:id", deleteBranch);
 
 setupRouter.post("/client", createClient);
+setupRouter.get("/client", getClients);
+setupRouter.delete("/client/:id", deleteClient);
 setupRouter.post("/product", createProduct);
 
 export default setupRouter;

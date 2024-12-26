@@ -97,7 +97,7 @@ export const getClients = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteBranch = async (req: Request, res: Response) => {
+export const deleteClient = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {

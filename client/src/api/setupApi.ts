@@ -13,6 +13,21 @@ const clientApi = authApiSlice.injectEndpoints({
         method: "POST",
         body: { code, name }
       })
+    }),
+    getClients: builder.query({
+      query: ({ page = 1, limit = 10, search, searchColumn, order }) => ({
+        url: `/setup/client`,
+        method: "GET",
+        params: { page, limit, search, searchColumn, order }
+      }),
+      providesTags: ["branches"]
+    }),
+    deleteClient: builder.mutation({
+      query: (id: string) => ({
+        url: `/setup/client/${id}`,
+        method: "DELETE"
+      }),
+      invalidatesTags: ["branches"]
     })
   })
 });
@@ -59,4 +74,8 @@ export const {
   useGetAllBranchesQuery
 } = branchApi;
 
-export const { useCreateClientMutation } = clientApi;
+export const {
+  useCreateClientMutation,
+  useGetClientsQuery,
+  useDeleteClientMutation
+} = clientApi;
