@@ -1,24 +1,23 @@
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { useCreateBranchMutation, CreateBranch } from "@api/branchApi";
+import { useCreateClientMutation } from "@api/setupApi";
 const AddClient = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm<CreateBranch>();
+  } = useForm();
 
-  const [createBranch, { isLoading }] = useCreateBranchMutation();
+  const [createClient, { isLoading }] = useCreateClientMutation();
 
-  const onSubmit = async (data: CreateBranch) => {
+  const onSubmit = async (data) => {
     try {
-      const branch = data;
-      await createBranch({ branch }).unwrap();
+      await createClient({ ...data }).unwrap();
       reset();
-      toast.success("Branch Added Succesfully");
+      toast.success("Client Added Succesfully");
     } catch (err: any) {
-      toast.error(err.data.message);
+      toast.error("something went wrong");
     }
   };
   return (
@@ -26,26 +25,26 @@ const AddClient = () => {
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3 placeholder:text-gray-400'>
         <div className='flex flex-col col-span-1 gap-2'>
           <label>
-            Branch Name{" "}
+            Client Name{" "}
             {errors.name ? <span className='text-red-500'>*</span> : null}
           </label>
           <input
             type='text'
             {...register("name", { required: true })}
             className={`p-2 border-gray-500 rounded-lg border-2`}
-            placeholder='Branch Name'
+            placeholder='Client Name'
           />
         </div>
         <div className='flex flex-col col-span-1 gap-2'>
           <label>
-            Branch Code{" "}
+            Client Code{" "}
             {errors.code ? <span className='text-red-500'>*</span> : null}
           </label>
           <input
             type='text'
             {...register("code", { required: true })}
             className={`p-2 border-gray-500 rounded-lg border-2`}
-            placeholder='Branch Code'
+            placeholder='Client Code'
           />
         </div>
       </div>

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { PiEyeSlash, PiEyeLight } from "react-icons/pi";
 import { Role } from "@constants/enum";
 import Select, { MultiValue } from "react-select"; // Import MultiValue for react-select
-import { useGetAllBranchesQuery } from "@api/branchApi";
+import { useGetAllBranchesQuery } from "@api/setupApi";
 import { useCreateEmployeeMutation } from "@api/userApi";
 import { toast } from "react-toastify";
 

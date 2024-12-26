@@ -5,6 +5,18 @@ export type CreateBranch = {
   code: string;
 };
 
+const clientApi = authApiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    createClient: builder.mutation({
+      query: ({ code, name }) => ({
+        url: "/setup/client",
+        method: "POST",
+        body: { code, name }
+      })
+    })
+  })
+});
+
 const branchApi = authApiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createBranch: builder.mutation<any, { branch: CreateBranch }>({
@@ -46,3 +58,5 @@ export const {
   useDeleteBranchMutation,
   useGetAllBranchesQuery
 } = branchApi;
+
+export const { useCreateClientMutation } = clientApi;

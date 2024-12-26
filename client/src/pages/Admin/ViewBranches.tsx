@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   SortingState
 } from "@tanstack/react-table";
-import { useGetBranchesQuery, useDeleteBranchMutation } from "@api/branchApi";
+import { useGetBranchesQuery, useDeleteBranchMutation } from "@api/setupApi";
 import { toast } from "react-toastify";
 import { convertToIST } from "@utils/time";
 import Pagination from "@components/Pagination";
