@@ -42,8 +42,8 @@ const NavLinks: NavLink[] = [
       { name: "View Branches", path: "/setup/branch", Roles: [Role.ADMIN] },
       { name: "Add Client", path: "/setup/client/add", Roles: [Role.ADMIN] },
       { name: "View Client", path: "/setup/client", Roles: [Role.ADMIN] },
-      { name: "Add Product", path: "/setup/client/add", Roles: [Role.ADMIN] },
-      { name: "View Products", path: "/setup/client", Roles: [Role.ADMIN] }
+      { name: "Add Product", path: "/setup/product/add", Roles: [Role.ADMIN] },
+      { name: "View Products", path: "/setup/product", Roles: [Role.ADMIN] }
     ]
   },
   {
