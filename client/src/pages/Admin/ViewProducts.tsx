@@ -66,8 +66,7 @@ const ViewProducts = () => {
   // Define table columns
   const columns = useMemo(
     () => [
-      { header: "Client Code", accessorKey: "code" },
-      { header: "Client Name", accessorKey: "name" },
+      { header: "Product Name", accessorKey: "name" },
       {
         header: "Created At",
         accessorKey: "createdAt",

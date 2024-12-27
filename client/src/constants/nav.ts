@@ -47,7 +47,7 @@ const NavLinks: NavLink[] = [
     ]
   },
   {
-    name: "VerificationTypes",
+    name: "Verification Types",
     icon: LuShield,
     hasSub: true,
     path: "/vt",
