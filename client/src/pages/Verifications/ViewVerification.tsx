@@ -334,6 +334,18 @@ const ViewVerification = () => {
         <CaseDetails label='Address' value={verification.address} />
         <CaseDetails label='Pincode' value={verification.pincode} />
         <CaseDetails label='CRE Remarks' value={verification.creRemarks} />
+        {verification.phone != 0 && (
+          <CaseDetails label='Phone Number' value={verification.phone} />
+        )}
+        {verification.lat && (
+          <CaseDetails label='Phone Number' value={verification.lat} />
+        )}
+        {verification.long && (
+          <CaseDetails label='Phone Number' value={verification.long} />
+        )}
+        {verification.feRemarks && (
+          <CaseDetails label='OF Remarks' value={verification.feRemarks} />
+        )}
         {user?.role !== "OF" && verification.distance !== null ? (
           <CaseDetails label='Distance' value={verification.distance} />
         ) : null}

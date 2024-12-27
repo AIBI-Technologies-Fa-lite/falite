@@ -19,6 +19,9 @@ export type Verification = {
     lastName: string;
     role: string;
   };
+  lat?: number;
+  long?: number;
+  phone: number;
   address: string;
   pincode: string;
   creRemarks: string;

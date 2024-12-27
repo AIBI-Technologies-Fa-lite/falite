@@ -11,11 +11,15 @@ interface DisplayVerificationProps {
   setvid?: any;
 }
 
-const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification, reopen, setvid }) => {
+const DisplayVerification: React.FC<DisplayVerificationProps> = ({
+  verification,
+  reopen,
+  setvid
+}) => {
   return (
-    <div className="grid gap-4 mt-6 md:col-span-3 md:grid-cols-3">
-      <div className="flex items-center justify-between border-t-2 border-b-2 border-purple-100 md:col-span-3">
-        <p className="font-bold">{verification.verificationType.name}</p>
+    <div className='grid gap-4 mt-6 md:col-span-3 md:grid-cols-3'>
+      <div className='flex items-center justify-between border-t-2 border-b-2 border-purple-100 md:col-span-3'>
+        <p className='font-bold'>{verification.verificationType.name}</p>
 
         <p
           className={`font-bold ${
@@ -50,7 +54,7 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification,
         </p>
 
         <div
-          className="md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer"
+          className='md:px-4 md:py-2 p-2 text-xs text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 w-fit hover:cursor-pointer'
           onClick={() => {
             if (reopen) reopen(true);
             if (setvid) setvid(verification.id);
@@ -59,15 +63,41 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({ verification,
           Reopen
         </div>
       </div>
-      <CaseDetails label="OF" value={`${verification.of.firstName} ${verification.of.lastName}`} />
-      <CaseDetails label="Address" value={verification.address} />
-      <CaseDetails label="Pincode" value={verification.pincode} />
-      <CaseDetails label="CRE Remarks" value={verification.creRemarks} />
-      {verification.feRemarks && <CaseDetails label="OF Remarks" value={verification.feRemarks} />}
-      <CaseDetails label="Assigned At" value={convertToIST(verification.createdAt)} />
-      {verification.createdAt !== verification.updatedAt && <CaseDetails label="Updated At" value={convertToIST(verification.updatedAt)} />}
-
-      {verification.documents && verification.documents.length > 0 && <ShowDocuments canSeeCREDocuments={true} documents={verification.documents} />}
+      <CaseDetails
+        label='OF'
+        value={`${verification.of.firstName} ${verification.of.lastName}`}
+      />
+      <CaseDetails label='Address' value={verification.address} />
+      <CaseDetails label='Pincode' value={verification.pincode} />
+      <CaseDetails label='CRE Remarks' value={verification.creRemarks} />
+      {verification.phone != 0 && (
+        <CaseDetails label='Phone Number' value={verification.phone} />
+      )}
+      {verification.lat && (
+        <CaseDetails label='Phone Number' value={verification.lat} />
+      )}
+      {verification.long && (
+        <CaseDetails label='Phone Number' value={verification.long} />
+      )}
+      {verification.feRemarks && (
+        <CaseDetails label='OF Remarks' value={verification.feRemarks} />
+      )}
+      <CaseDetails
+        label='Assigned At'
+        value={convertToIST(verification.createdAt)}
+      />
+      {verification.createdAt !== verification.updatedAt && (
+        <CaseDetails
+          label='Updated At'
+          value={convertToIST(verification.updatedAt)}
+        />
+      )}
+      {verification.documents && verification.documents.length > 0 && (
+        <ShowDocuments
+          canSeeCREDocuments={true}
+          documents={verification.documents}
+        />
+      )}
     </div>
   );
 };
