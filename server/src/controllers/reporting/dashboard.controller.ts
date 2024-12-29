@@ -528,7 +528,6 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
       totalCompleted: totalCompletedData
     };
 
-    console.log(data);
     // Send response
     apiResponse.success(res, { data });
   } catch (error) {
