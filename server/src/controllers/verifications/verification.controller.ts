@@ -688,6 +688,16 @@ export const markUntracable = async (req: Request, res: Response) => {
       },
       { timeout: 20000 }
     );
+    // Send final notification outside transaction to avoid delays
+    sendNotification(
+      "Verification Completed",
+      transaction.case.employeeId,
+      NotificationType.CASE,
+      transaction.case.id
+    );
+
+    // Respond with success status
+    apiResponse.success(res, {});
   } catch (err) {
     console.log(err);
     apiResponse.error(res);

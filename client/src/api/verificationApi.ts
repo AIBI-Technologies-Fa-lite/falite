@@ -83,6 +83,14 @@ const verificationApi = authApiSlice.injectEndpoints({
       }),
       invalidatesTags: ["verifications", "verification"]
     }),
+    markUt: builder.mutation({
+      query: ({feRemarks,id,location}) => ({
+        url: `/verification/ut`,
+        method: "POST",
+        body: {feRemarks,id,location}
+      }),
+      invalidatesTags: ["verifications", "verification"]
+    }),
     closeCase: builder.mutation({
       query: ({ status, reworkRemarks, id }) => ({
         url: `/verification/case/${id}`,
@@ -143,5 +151,6 @@ export const {
   useReworkCaseMutation,
   useMarkCompletedMutation,
   useGetBillingQuery,
-  useMarkBillingMutation
+  useMarkBillingMutation,
+  useMarkUtMutation
 } = verificationApi;

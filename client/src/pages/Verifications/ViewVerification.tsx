@@ -4,7 +4,8 @@ import {
   useSendOfResponseMutation,
   useSubmitVerificationMutation,
   useMarkWorkingMutation,
-  useMarkBillingMutation
+  useMarkBillingMutation,
+  useMarkUtMutation
 } from "@api/verificationApi";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -60,6 +61,11 @@ const ViewVerification = () => {
   const user = useSelector(selectUser);
   const role = user?.role;
   const [billingModal, setBillingModal] = useState(false);
+  const [traceability, setTraceability] = useState("Yes"); // Default value is "Yes"
+
+  const handleTraceabilityChange = (event) => {
+    setTraceability(event.target.value);
+  };
 
   const { data, error, isLoading, refetch } = useGetVerificationByIdQuery({
     id
@@ -69,6 +75,7 @@ const ViewVerification = () => {
     useSubmitVerificationMutation();
   const [markBilling, { isLoading: marking }] = useMarkBillingMutation();
   const [markWorking, { isLoading: isMarking }] = useMarkWorkingMutation();
+  const [markUt, { isLoading: ut }] = useMarkUtMutation();
 
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
 
@@ -95,6 +102,41 @@ const ViewVerification = () => {
     }
   }, [error, user]);
 
+  const handleUt = async (data) => {
+    try {
+      // Get geolocation data and then call the mutation
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const location = {
+            lat: position.coords.latitude.toString(),
+            long: position.coords.longitude.toString()
+          };
+
+          try {
+            // Call mutation with formData and id
+            await markUt({
+              feRemarks: data.remarks,
+              id: id as string,
+              location
+            }).unwrap();
+            toast.success("Verification submitted successfully.");
+            navigate("/verification");
+            reset();
+          } catch (err) {
+            console.error("Submit error:", err);
+            toast.error("Failed to update verification");
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast.error("Unable to retrieve location. Please try again.");
+        }
+      );
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast.error("Failed to update verification");
+    }
+  };
   const handleAcceptClick = async () => {
     try {
       await ofResponse({ id }).unwrap();
@@ -171,8 +213,7 @@ const ViewVerification = () => {
             // Call mutation with formData and id
             await submitResponse(submitData).unwrap();
             toast.success("Case submitted successfully.");
-            navigate("/verification");
-
+            navigate("/verification/working");
             reset();
             setFileNames([]);
           } catch (err) {
@@ -338,13 +379,10 @@ const ViewVerification = () => {
           <CaseDetails label='Phone Number' value={verification.phone} />
         )}
         {verification.lat && (
-          <CaseDetails label='Phone Number' value={verification.lat} />
+          <CaseDetails label='Latitude' value={verification.lat} />
         )}
         {verification.long && (
-          <CaseDetails label='Phone Number' value={verification.long} />
-        )}
-        {verification.feRemarks && (
-          <CaseDetails label='OF Remarks' value={verification.feRemarks} />
+          <CaseDetails label='Longitude' value={verification.long} />
         )}
         {user?.role !== "OF" && verification.distance !== null ? (
           <CaseDetails label='Distance' value={verification.distance} />
@@ -374,86 +412,137 @@ const ViewVerification = () => {
 
       {/* Submission Form */}
       {verification.status === Status.ONGOING && role === "OF" && (
-        <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400'>
-            {/* File Upload */}
-            <div className='flex flex-col col-span-1 gap-2'>
-              <label>
-                File {errors.files && <span className='text-red-500'>*</span>}
-              </label>
-              <input
-                type='file'
-                multiple
-                accept='image/*,.pdf'
-                {...register("files", {
-                  validate: (files) =>
-                    files.length <= 6 || "You can only upload up to 6 files."
-                })}
-                onChange={handleFileChange}
-                className='w-full overflow-clip rounded-lg border-2 border-gray-500 file:mr-4 file:cursor-pointer file:border-none file:bg-purple-100 file:px-4 file:py-2 file:font-medium disabled:cursor-not-allowed disabled:opacity-75'
-              />
-              {errors.files && (
-                <span className='text-red-500'>
-                  {errors.files.message?.toString()}
-                </span>
-              )}
-            </div>
-
-            {/* Uploaded File List */}
-            <div className='flex flex-col col-span-1 gap-2'>
-              <label>Uploaded Files:</label>
-              <ul className='pl-4 text-xs list-disc'>
-                {fileNames.map((name, index) => (
-                  <li key={index} className='text-gray-600'>
-                    {name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Status Selection */}
-            <div className='flex flex-col col-span-1 gap-2'>
-              <label>
-                Status{" "}
-                {errors.status && <span className='text-red-500'>*</span>}
-              </label>
+        <>
+          {/* Traceability Selection */}
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            <div className='flex flex-col gap-4 mb-6 col-span-1'>
+              <label className='text-lg font-bold'>Traceable</label>
               <select
-                {...register("status", { required: true })}
+                value={traceability}
+                onChange={handleTraceabilityChange}
                 className='p-2 border-gray-500 rounded-lg border-2'
               >
-                <option value={Status.POSITIVE}>POSITIVE</option>
-                <option value={Status.NEGATIVE}>NEGATIVE</option>
-                <option value={Status.CANNOTVERIFY}>CANNOT VERIFY</option>
-                <option value={Status.REFER}>REFER</option>
+                <option value='No'>No</option>
+                <option value='Yes'>Yes</option>
               </select>
-            </div>
-
-            {/* Remarks Field */}
-            <div className='flex flex-col gap-2 md:col-span-2'>
-              <label>
-                Remarks{" "}
-                {errors.remarks && <span className='text-red-500'>*</span>}
-              </label>
-              <textarea
-                {...register("remarks", { required: true })}
-                className='p-2 border-gray-500 rounded-lg border-2'
-                placeholder='Notes'
-              />
-              {errors.remarks && (
-                <span className='text-red-500'>Remarks are required.</span>
-              )}
             </div>
           </div>
 
-          <button
-            type='submit'
-            className='w-full px-4 py-2 mt-6 mb-6 text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto'
-            disabled={!user?.working || submitingVerification}
-          >
-            {submitingVerification ? <p>Submitting...</p> : <p>Submit</p>}
-          </button>
-        </form>
+          {traceability === "Yes" ? (
+            // Full submission form
+            <form className='w-full' onSubmit={handleSubmit(onSubmit)}>
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400'>
+                {/* File Upload */}
+                <div className='flex flex-col col-span-1 gap-2'>
+                  <label>
+                    File{" "}
+                    {errors.files && <span className='text-red-500'>*</span>}
+                  </label>
+                  <input
+                    type='file'
+                    multiple
+                    accept='image/*,.pdf'
+                    {...register("files", {
+                      validate: (files) =>
+                        files.length <= 6 ||
+                        "You can only upload up to 6 files."
+                    })}
+                    onChange={handleFileChange}
+                    className='w-full overflow-clip rounded-lg border-2 border-gray-500 file:mr-4 file:cursor-pointer file:border-none file:bg-purple-100 file:px-4 file:py-2 file:font-medium disabled:cursor-not-allowed disabled:opacity-75'
+                  />
+                  {errors.files && (
+                    <span className='text-red-500'>
+                      {errors.files.message?.toString()}
+                    </span>
+                  )}
+                </div>
+
+                {/* Uploaded File List */}
+                <div className='flex flex-col col-span-1 gap-2'>
+                  <label>Uploaded Files:</label>
+                  <ul className='pl-4 text-xs list-disc'>
+                    {fileNames.map((name, index) => (
+                      <li key={index} className='text-gray-600'>
+                        {name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Status Selection */}
+                <div className='flex flex-col col-span-1 gap-2'>
+                  <label>
+                    Status{" "}
+                    {errors.status && <span className='text-red-500'>*</span>}
+                  </label>
+                  <select
+                    {...register("status", { required: true })}
+                    className='p-2 border-gray-500 rounded-lg border-2'
+                  >
+                    <option value={Status.POSITIVE}>POSITIVE</option>
+                    <option value={Status.NEGATIVE}>NEGATIVE</option>
+                    <option value={Status.CANNOTVERIFY}>CANNOT VERIFY</option>
+                    <option value={Status.REFER}>REFER</option>
+                  </select>
+                </div>
+
+                {/* Remarks Field */}
+                <div className='flex flex-col gap-2 md:col-span-2'>
+                  <label>
+                    Remarks{" "}
+                    {errors.remarks && <span className='text-red-500'>*</span>}
+                  </label>
+                  <textarea
+                    {...register("remarks", { required: true })}
+                    className='p-2 border-gray-500 rounded-lg border-2'
+                    placeholder='Notes'
+                  />
+                  {errors.remarks && (
+                    <span className='text-red-500'>Remarks are required.</span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type='submit'
+                className='w-full px-4 py-2 mt-6 mb-6 text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto'
+                disabled={!user?.working || submitingVerification}
+              >
+                {submitingVerification ? <p>Submitting...</p> : <p>Submit</p>}
+              </button>
+            </form>
+          ) : (
+            // Simpler form for remarks only
+            <form className='w-full' onSubmit={handleSubmit(handleUt)}>
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 placeholder:text-gray-400'>
+                {/* Remarks Field */}
+                <div className='flex flex-col gap-2 md:col-span-2'>
+                  <label>
+                    Remarks{" "}
+                    {errors.remarks && <span className='text-red-500'>*</span>}
+                  </label>
+                  <textarea
+                    {...register("remarks", { required: true })}
+                    className='p-2 border-gray-500 rounded-lg border-2'
+                    placeholder='Notes'
+                  />
+                  {errors.remarks && (
+                    <span className='text-red-500'>Remarks are required.</span>
+                  )}
+                </div>
+              </div>
+              <button
+                type='submit'
+                className='w-full px-4 py-2 mt-6 mb-6 text-white transition-all duration-100 bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto'
+                disabled={!user?.working || ut}
+              >
+                {ut ? <p>Submitting...</p> : <p>Submit</p>}
+              </button>
+            </form>
+          )}
+        </>
       )}
+
       {billingModal && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
           <div className='p-6 bg-white rounded-lg shadow-lg md:w-[40%] w-[90%]'>
