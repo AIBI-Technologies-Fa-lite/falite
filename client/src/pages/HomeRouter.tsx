@@ -11,7 +11,7 @@ const HomeRouter = () => {
     return <DirectorDashboard />;
   } else if (user?.role === "CRE") {
     return <CreDashboard />;
-  } else return <div>HomeRouter</div>;
+  } else return <div></div>;
 };
 
 export default HomeRouter;
