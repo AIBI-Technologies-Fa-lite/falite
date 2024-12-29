@@ -42,11 +42,7 @@ const FieldDashboard = () => {
             >
               Start Day
             </button>
-          ) : (
-            <button className='w-full px-4 py-2 text-xs text-white bg-purple-600 rounded-lg hover:bg-purple-400 md:w-auto mb-2'>
-              End Day
-            </button>
-          )}
+          ) : null}
         </div>
       )}
 

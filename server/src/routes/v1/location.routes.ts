@@ -1,8 +1,17 @@
 import { Router } from "express";
-import { captureLocation, getCheckins } from "../../controllers/user/location.controller";
+import {
+  captureLocation,
+  getCheckins,
+  resetLocation
+} from "../../controllers/user/location.controller";
 import { roleMiddleware } from "../../middlewares/auth";
 const locationRouter = Router();
 
 locationRouter.post("/", roleMiddleware(["OF"]), captureLocation);
-locationRouter.get("/checkins", roleMiddleware(["CRE", "SUPERVISOR"]), getCheckins);
+locationRouter.post("/reset", roleMiddleware(["ADMIN"]), resetLocation);
+locationRouter.get(
+  "/checkins",
+  roleMiddleware(["CRE", "SUPERVISOR"]),
+  getCheckins
+);
 export default locationRouter;
