@@ -53,8 +53,8 @@ const ViewCase: React.FC = () => {
   const role = useSelector((state: RootState) => state.auth.user?.role);
   const { id } = useParams<{ id: string | "" }>();
   const { data, error, isLoading, refetch } = useGetCaseByIdQuery({ id });
-  const { data: vtData, error: vtError } = useGetAllVtQuery({});
-  const { data: ofData, error: ofError } = useGetEmployeeByRoleQuery({
+  const { data: vtData } = useGetAllVtQuery({});
+  const { data: ofData } = useGetEmployeeByRoleQuery({
     role: Role.OF
   });
   const [showModal, setShowModal] = useState(false);
@@ -64,7 +64,7 @@ const ViewCase: React.FC = () => {
   const [reopenId, setReopenId] = useState(null);
   const [fileNames, setFileNames] = useState<string[]>([]); // State to track file names
 
-  const [createVerification, { isLoading: isCreating, error: createError }] =
+  const [createVerification, { isLoading: isCreating }] =
     useCreateVerificationMutation();
   const [reopenVerification, { isLoading: isReopening }] =
     useReopenVerificationMutation();
@@ -80,12 +80,13 @@ const ViewCase: React.FC = () => {
   } = useForm();
 
   useEffect(() => {
-    if (error) toast.error("An error occurred while fetching the case.");
-    if (vtError)
-      toast.error("An error occurred while fetching verification types.");
-    if (ofError) toast.error("An error occurred while fetching employees.");
-    if (createError) toast.error("Failed to create verification.");
-  }, [error, vtError, ofError, createError]);
+    if (data) {
+      const caseData: CaseData = data.data.case;
+      if (caseData.verifications.length === 0) {
+        setShowModal(true);
+      }
+    }
+  }, [data]);
   const onReopen = async (data: any) => {
     if (!reopenId) {
       toast.error("Case ID is missing.");
