@@ -73,7 +73,7 @@ const verificationApi = authApiSlice.injectEndpoints({
         method: "PUT",
         body: { reject, remarks }
       }),
-      invalidatesTags: ["verifications"]
+      invalidatesTags: ["verifications", "notifications"]
     }),
     submitVerification: builder.mutation({
       query: (formData) => ({
@@ -81,15 +81,15 @@ const verificationApi = authApiSlice.injectEndpoints({
         method: "POST",
         body: formData
       }),
-      invalidatesTags: ["verifications", "verification"]
+      invalidatesTags: ["verifications", "verification", "notifications"]
     }),
     markUt: builder.mutation({
-      query: ({feRemarks,id,location}) => ({
+      query: ({ feRemarks, id, location }) => ({
         url: `/verification/ut`,
         method: "POST",
-        body: {feRemarks,id,location}
+        body: { feRemarks, id, location }
       }),
-      invalidatesTags: ["verifications", "verification"]
+      invalidatesTags: ["verifications", "verification", "notifications"]
     }),
     closeCase: builder.mutation({
       query: ({ status, reworkRemarks, id }) => ({
@@ -97,7 +97,7 @@ const verificationApi = authApiSlice.injectEndpoints({
         method: "PUT",
         body: { status, reworkRemarks }
       }),
-      invalidatesTags: ["cases"]
+      invalidatesTags: ["cases", "notifications"]
     }),
     reopenVerification: builder.mutation({
       query: ({ empId, id }) => ({
@@ -105,7 +105,7 @@ const verificationApi = authApiSlice.injectEndpoints({
         method: "PUT",
         body: { of_id: parseInt(empId) }
       }),
-      invalidatesTags: ["cases", "verifications"]
+      invalidatesTags: ["cases", "verifications", "notifications"]
     }),
     reworkCase: builder.mutation({
       query: ({ supervisorRemarks, id }) => ({

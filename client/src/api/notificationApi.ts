@@ -15,8 +15,19 @@ const notificationApi = authApiSlice.injectEndpoints({
         method: "GET"
       }),
       providesTags: ["notifications"]
+    }),
+    getVCounts: builder.query({
+      query: () => ({
+        url: "/notification/count",
+        method: "GET"
+      }),
+      providesTags: ["notifications"]
     })
   })
 });
 
-export const { useReadNotificationMutation, useGetNotificationsQuery } = notificationApi;
+export const {
+  useReadNotificationMutation,
+  useGetNotificationsQuery,
+  useGetVCountsQuery
+} = notificationApi;

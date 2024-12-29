@@ -4,6 +4,7 @@ import { logout, selectUser } from "@providers/authSlice";
 import NavLinks, { NavLink } from "@constants/nav";
 import NavItem from "./NavItem";
 import { useState, useRef } from "react";
+import { useGetVCountsQuery } from "@api/notificationApi";
 
 const MobileSidebar = ({ isOpen, toggleSidebar }) => {
   const dispatch = useDispatch();
@@ -15,8 +16,10 @@ const MobileSidebar = ({ isOpen, toggleSidebar }) => {
   const handleToggleMenu = (name: string) => {
     setOpenMenu((prev) => (prev === name ? null : name));
   };
-
-  const allowedNav = NavLinks.filter((link: NavLink) => user?.role && link.Roles.includes(user?.role));
+  const { data } = useGetVCountsQuery({});
+  const allowedNav = NavLinks.filter(
+    (link: NavLink) => user?.role && link.Roles.includes(user?.role)
+  );
 
   return (
     <>
@@ -28,24 +31,30 @@ const MobileSidebar = ({ isOpen, toggleSidebar }) => {
         } transition-transform duration-300 ease-in-out z-50`}
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-center w-full gap-4 p-4 bg-white">
-          <img src={logo} alt="Logo" className="h-[32px]" />
-          <p className="text-xl text-purple-900">
-            FA <span className="font-thin text-gray-600">lite</span>
+        <div className='flex items-center justify-center w-full gap-4 p-4 bg-white'>
+          <img src={logo} alt='Logo' className='h-[32px]' />
+          <p className='text-xl text-purple-900'>
+            FA <span className='font-thin text-gray-600'>lite</span>
           </p>
         </div>
 
         {/* Navigation Links */}
-        <div className="flex flex-col gap-4 px-4 mt-6">
+        <div className='flex flex-col gap-4 px-4 mt-6'>
           {allowedNav.map((nav: NavLink) => (
-            <NavItem key={nav.name} {...nav} isOpen={openMenu === nav.name} onToggleMenu={() => handleToggleMenu(nav.name)} />
+            <NavItem
+              key={nav.name}
+              {...nav}
+              isOpen={openMenu === nav.name}
+              onToggleMenu={() => handleToggleMenu(nav.name)}
+              vCounts={data?.data}
+            />
           ))}
         </div>
 
         {/* Logout Button */}
-        <div className="w-full p-4">
+        <div className='w-full p-4'>
           <div
-            className="flex items-center justify-center py-2 text-white transition-all duration-200 bg-purple-600 rounded-xl hover:cursor-pointer hover:bg-purple-400"
+            className='flex items-center justify-center py-2 text-white transition-all duration-200 bg-purple-600 rounded-xl hover:cursor-pointer hover:bg-purple-400'
             onClick={() => {
               dispatch(logout());
             }}
@@ -56,7 +65,12 @@ const MobileSidebar = ({ isOpen, toggleSidebar }) => {
       </div>
 
       {/* Backdrop overlay */}
-      {isOpen && <div className="fixed inset-0 z-40 w-full backdrop-blur-3xl" onClick={toggleSidebar}></div>}
+      {isOpen && (
+        <div
+          className='fixed inset-0 z-40 w-full backdrop-blur-3xl'
+          onClick={toggleSidebar}
+        ></div>
+      )}
     </>
   );
 };
