@@ -9,7 +9,7 @@ model Verification {
 
   lat   Float?
   long  Float?
-  phone Int
+  phone String
 
   caseId Int
   case   CommonData @relation(fields: [caseId], references: [id])

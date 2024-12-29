@@ -18,9 +18,9 @@ export const createVerification = async (req: Request, res: Response) => {
       verificationTypeId: string;
       employeeId: string;
       priority: boolean;
-      lat?: number;
-      long?: number;
-      phone: number;
+      lat?: string;
+      long?: string;
+      phone: string;
     };
     caseId: string;
   };
@@ -43,8 +43,11 @@ export const createVerification = async (req: Request, res: Response) => {
               id: parseInt(caseId, 10)
             }
           },
-          lat: verificationData.lat,
-          long: verificationData.long,
+          lat: verificationData.lat ? parseFloat(verificationData.lat) : null,
+          long: verificationData.long
+            ? parseFloat(verificationData.long)
+            : null,
+
           phone: verificationData.phone,
           creRemarks: verificationData.creRemarks,
           of: {
@@ -99,13 +102,6 @@ export const createVerification = async (req: Request, res: Response) => {
           status: Status.PENDING
         }
       });
-
-      await sendNotification(
-        "New Verification Assigned",
-        verification.of_id,
-        NotificationType.VERIFICATION,
-        verification.id
-      );
       return verification;
     });
 
@@ -578,13 +574,6 @@ export const reopenVerification = async (req: Request, res: Response) => {
       });
       return updatedVerification;
     });
-
-    sendNotification(
-      "New Verification",
-      of_id,
-      NotificationType.VERIFICATION,
-      parseInt(id)
-    );
 
     apiResponse.success(res, { verification: transaction });
   } catch (err) {
