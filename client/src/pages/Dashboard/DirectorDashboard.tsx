@@ -1,4 +1,4 @@
-import { Line, Doughnut } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import { useEffect, useState } from "react";
 import { useReportingQuery } from "@api/reportingApi";
@@ -38,30 +38,13 @@ const DirectorDashboard = () => {
     ]
   };
 
-  const doughnutData = {
-    labels: ["Completed", "Pending"],
-    datasets: [
-      {
-        label: "Percentage",
-        data: [
-          currentData?.completedPercentage,
-          100 - currentData?.completedPercentage
-        ],
-        backgroundColor: ["#f97316", "#f3f4f6"]
-      }
-    ]
-  };
-
   return (
     <div className='container mx-auto p-6 grid grid-cols-6 gap-6'>
       {/* Top Cards */}
       <div className='grid grid-cols-3 gap-6 col-span-6'>
-        {/* Total Verifications */}
         <div className='bg-white p-4 rounded shadow'>
-          <h2 className='text-sm text-gray-500'>Total Verifications</h2>
-          <p className='text-2xl font-bold'>
-            {currentData?.totalVerifications || 0}
-          </p>
+          <h2 className='text-sm text-gray-500'>Positive Outcomes</h2>
+          <p className='text-2xl font-bold'>{currentData?.positive || 0}</p>
           <p className='text-sm text-gray-400'>
             {timeRange === "daily"
               ? "Today"
@@ -70,24 +53,34 @@ const DirectorDashboard = () => {
               : "Monthly"}
           </p>
         </div>
-        {/* Completed Verifications */}
+
         <div className='bg-white p-4 rounded shadow'>
-          <h2 className='text-sm text-gray-500'>Completed Verifications</h2>
-          <p className='text-2xl font-bold'>
-            {currentData?.completedVerifications || 0}
+          <h2 className='text-sm text-gray-500'>Negative Outcomes</h2>
+          <p className='text-2xl font-bold'>{currentData?.negative || 0}</p>
+          <p className='text-sm text-gray-400'>
+            {timeRange === "daily"
+              ? "Today"
+              : timeRange === "this-month"
+              ? "This Month"
+              : "Monthly"}
           </p>
         </div>
-        {/* Total Distance Covered */}
+
         <div className='bg-white p-4 rounded shadow'>
-          <h2 className='text-sm text-gray-500'>Total Distance Covered</h2>
+          <h2 className='text-sm text-gray-500'>Conversion</h2>
           <p className='text-2xl font-bold'>
-            {currentData?.totalDistance || 0}
+            {currentData?.positive && currentData.negative
+              ? (currentData.positive /
+                  (currentData.negative + currentData.positive)) *
+                100
+              : 0}
+            %
           </p>
         </div>
       </div>
 
       {/* Analytics Chart */}
-      <div className='bg-white p-6 rounded shadow col-span-4'>
+      <div className='bg-white p-6 rounded shadow col-span-6'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-lg font-bold'>Analytics</h2>
           <div className='space-x-2'>
@@ -135,22 +128,6 @@ const DirectorDashboard = () => {
             }}
           />
         )}
-      </div>
-
-      {/* Performance Doughnut Chart */}
-      <div className='bg-white p-6 rounded shadow col-span-2'>
-        <h2 className='text-lg font-bold mb-4'>Performance</h2>
-        <div className='flex justify-center'>
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : (
-            <Doughnut data={doughnutData} options={{ cutout: "70%" }} />
-          )}
-        </div>
-        <p className='text-center mt-4 text-lg'>
-          {currentData?.completedPercentage}%
-          <span className='text-sm text-gray-500'>Completed</span>
-        </p>
       </div>
     </div>
   );

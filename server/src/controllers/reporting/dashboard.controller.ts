@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { apiResponse, CustomRequest } from "../../utils/response";
-import { Role } from "@prisma/client";
+import { Role, Status } from "@prisma/client";
 import {
   getDateRangeForCurrentMonth,
   getDateRangeForToday
@@ -352,8 +352,10 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Fetch total verifications
-    const totalVerifications: number = await prisma.verification.count({
+    const positive: number = await prisma.verification.count({
       where: {
+        status: Status.POSITIVE,
+        final: 1,
         createdAt: {
           gte: startDate,
           lte: endDate
@@ -362,9 +364,12 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
     });
 
     // Fetch completed verifications
-    const completedVerifications: number = await prisma.verification.count({
+    const negative: number = await prisma.verification.count({
       where: {
         final: 1,
+        status: {
+          in: [Status.CANNOTVERIFY, Status.UNTRACEBLE, Status.NEGATIVE]
+        },
         updatedAt: {
           gte: startDate,
           lte: endDate
@@ -516,16 +521,14 @@ export const reporting = async (req: Request, res: Response): Promise<void> => {
 
     // Response data
     const data = {
-      totalVerifications,
-      completedVerifications,
-      distanceCovered: distanceCovered._sum.distance || 0,
-      completedPercentage:
-        Math.floor((completedVerifications / totalVerifications) * 100) || 0,
+      positive,
+      negative,
       labels,
       totalAssigned: totalAssignedData,
       totalCompleted: totalCompletedData
     };
 
+    console.log(data);
     // Send response
     apiResponse.success(res, { data });
   } catch (error) {
