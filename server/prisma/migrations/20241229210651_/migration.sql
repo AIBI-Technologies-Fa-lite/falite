@@ -1,8 +1,10 @@
 -- CreateTable
-CREATE TABLE `Coordinates` (
+CREATE TABLE `VerificationType` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `latitude` DOUBLE NOT NULL,
-    `longitude` DOUBLE NOT NULL,
+    `organizationId` INTEGER NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `formId` VARCHAR(191) NOT NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -10,14 +12,22 @@ CREATE TABLE `Coordinates` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Notification` (
+CREATE TABLE `Client` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `userId` INTEGER NOT NULL,
-    `type` ENUM('CASE', 'VERIFICATION') NOT NULL,
-    `title` VARCHAR(191) NULL,
-    `message` VARCHAR(191) NOT NULL,
-    `linkTo` INTEGER NOT NULL,
-    `isRead` BOOLEAN NOT NULL DEFAULT false,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `organizationId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Product` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `organizationId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -50,6 +60,32 @@ CREATE TABLE `Branch` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `Coordinates` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `latitude` DOUBLE NOT NULL,
+    `longitude` DOUBLE NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Notification` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
+    `type` ENUM('CASE', 'VERIFICATION') NOT NULL,
+    `title` VARCHAR(191) NULL,
+    `message` VARCHAR(191) NOT NULL,
+    `linkTo` INTEGER NOT NULL,
+    `isRead` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `organizationId` INTEGER NOT NULL,
@@ -78,34 +114,26 @@ CREATE TABLE `User` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `VerificationType` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `organizationId` INTEGER NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `formId` VARCHAR(191) NOT NULL,
-    `deleted` BOOLEAN NOT NULL DEFAULT false,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Verification` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `verificationTypeId` INTEGER NOT NULL,
     `pincode` INTEGER NOT NULL,
     `address` VARCHAR(191) NOT NULL,
+    `lat` DOUBLE NULL,
+    `long` DOUBLE NULL,
+    `phone` INTEGER NOT NULL,
     `caseId` INTEGER NOT NULL,
     `creRemarks` VARCHAR(191) NULL,
     `feRemarks` VARCHAR(191) NULL,
     `distance` DOUBLE NULL,
     `destinationId` INTEGER NULL,
     `of_id` INTEGER NOT NULL,
+    `working` BOOLEAN NOT NULL DEFAULT false,
+    `priority` BOOLEAN NOT NULL DEFAULT false,
     `billable` BOOLEAN NOT NULL DEFAULT false,
     `clientBillable` BOOLEAN NOT NULL DEFAULT false,
     `ofBillable` BOOLEAN NOT NULL DEFAULT false,
-    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW', 'REWORK') NOT NULL,
+    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'UNTRACEBLE', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW', 'REWORK') NOT NULL,
     `final` INTEGER NOT NULL DEFAULT 0,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -121,14 +149,14 @@ CREATE TABLE `CommonData` (
     `businessName` VARCHAR(191) NULL,
     `coApplicatntName` VARCHAR(191) NULL,
     `caseNumber` VARCHAR(191) NOT NULL,
-    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW', 'REWORK') NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
     `product` VARCHAR(191) NOT NULL,
     `supervisorRemarks` VARCHAR(191) NULL,
     `reworkRemarks` VARCHAR(191) NULL,
+    `status` ENUM('ASSIGN', 'PENDING', 'REJECTED', 'ONGOING', 'CANNOTVERIFY', 'UNTRACEBLE', 'REFER', 'POSITIVE', 'NEGATIVE', 'REASSIGN', 'REVIEW', 'REWORK') NOT NULL,
     `employeeId` INTEGER NOT NULL,
     `final` INTEGER NOT NULL DEFAULT 0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -139,6 +167,7 @@ CREATE TABLE `Document` (
     `name` VARCHAR(191) NOT NULL,
     `verificationId` INTEGER NOT NULL,
     `employeeId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -153,10 +182,19 @@ CREATE TABLE `_UserBranches` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Notification` ADD CONSTRAINT `Notification_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `VerificationType` ADD CONSTRAINT `VerificationType_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Client` ADD CONSTRAINT `Client_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Product` ADD CONSTRAINT `Product_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Branch` ADD CONSTRAINT `Branch_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Notification` ADD CONSTRAINT `Notification_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -166,9 +204,6 @@ ALTER TABLE `User` ADD CONSTRAINT `User_locationId_fkey` FOREIGN KEY (`locationI
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_startId_fkey` FOREIGN KEY (`startId`) REFERENCES `Coordinates`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `VerificationType` ADD CONSTRAINT `VerificationType_organizationId_fkey` FOREIGN KEY (`organizationId`) REFERENCES `Organization`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Verification` ADD CONSTRAINT `Verification_verificationTypeId_fkey` FOREIGN KEY (`verificationTypeId`) REFERENCES `VerificationType`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
