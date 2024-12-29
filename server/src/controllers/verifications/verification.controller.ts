@@ -592,3 +592,104 @@ export const reopenVerification = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const markUntracable = async (req: Request, res: Response) => {
+  const { feRemarks, id, location } = req.body as {
+    feRemarks: string;
+    id: any;
+    location: { lat: string; long: string };
+  };
+  const user = (req as CustomRequest).user;
+  try {
+    const transaction = await prisma.$transaction(
+      async (tx) => {
+        // Step 1: Add New location
+        const coords = await tx.coordinates.create({
+          data: {
+            latitude: parseFloat(location.lat),
+            longitude: parseFloat(location.long)
+          }
+        });
+
+        // Step 2: Calculate the distance (Parallelized with Step 3)
+        const originPromise = tx.coordinates.findUnique({
+          where: { id: user.startId }
+        });
+
+        // Step 3: Update Verification record
+        const verificationPromise = tx.verification.update({
+          where: { id: parseInt(id) },
+          data: {
+            feRemarks,
+            status: Status.UNTRACEBLE,
+            destination: { connect: { id: coords.id } },
+            final: 1 // Flag as completed
+          },
+          select: {
+            id: true,
+            case: { select: { id: true, employeeId: true } }
+          }
+        });
+
+        // Await both promises in parallel
+        const [origin, verification] = await Promise.all([
+          originPromise,
+          verificationPromise
+        ]);
+        if (!origin) throw new Error("Origin coordinates not found");
+
+        const response = await directionsClient
+          .getDirections({
+            waypoints: [
+              { coordinates: [origin.longitude, origin.latitude] },
+              { coordinates: [coords.longitude, coords.latitude] }
+            ],
+            profile: "driving",
+            geometries: "geojson"
+          })
+          .send();
+        const distanceInMeters = response.body.routes[0]?.distance || 0;
+        const distanceInKilometers = (distanceInMeters / 1000).toFixed(1);
+
+        // Update verification with distance (uses a batch update for performance)
+        await tx.verification.update({
+          where: { id: parseInt(id) },
+          data: {
+            distance: parseFloat(distanceInKilometers)
+          }
+        });
+
+        // Step 4: Check all verifications completed and update case status if needed
+        const caseData = await tx.commonData.findUnique({
+          where: { id: verification.case.id },
+          include: { verifications: true }
+        });
+
+        const completed = caseData?.verifications.every((v) => v.final === 1);
+        if (completed) {
+          await tx.commonData.update({
+            where: { id: verification.case.id },
+            data: { status: Status.REVIEW }
+          });
+          sendNotification(
+            "Case Review",
+            verification.case.employeeId,
+            NotificationType.CASE,
+            verification.case.id
+          );
+        }
+
+        // Update user start location
+        await tx.user.update({
+          where: { id: user.id },
+          data: { start: { connect: { id: coords.id } } }
+        });
+
+        return verification;
+      },
+      { timeout: 20000 }
+    );
+  } catch (err) {
+    console.log(err);
+    apiResponse.error(res);
+  }
+};

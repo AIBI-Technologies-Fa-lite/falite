@@ -7,6 +7,7 @@ import {
   submitVerification,
   reopenVerification,
   getBillingVerifications,
+  markUntracable,
   markBilling,
   makrkWorking
 } from "../../controllers/verifications/verification.controller";
@@ -48,6 +49,7 @@ verificationRouter.post(
   roleMiddleware([Role.OF]),
   submitVerification
 );
+verificationRouter.post("/ut", roleMiddleware([Role.OF]), markUntracable);
 verificationRouter.get(
   "/billing",
   roleMiddleware([Role.ACCOUNTS]),
