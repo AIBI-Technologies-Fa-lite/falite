@@ -33,7 +33,8 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({
               ? "text-orange-500"
               : verification.status === Status.NEGATIVE
               ? "text-red-500"
-              : verification.status === Status.REFER
+              : verification.status === Status.REFER ||
+                verification.status === Status.UNTRACEBLE
               ? "text-orange-500"
               : "text-green-500"
           }`}
@@ -50,6 +51,8 @@ const DisplayVerification: React.FC<DisplayVerificationProps> = ({
             ? "Negative"
             : verification.status === Status.REFER
             ? "Refer"
+            : verification.status === Status.UNTRACEBLE
+            ? "Untraceble"
             : "Completed"}
         </p>
 
