@@ -167,7 +167,7 @@ const ViewVerification = () => {
       await ofResponse({ id, reject: true, remarks: rejectReason }).unwrap();
       toast.success("Verification rejected successfully.");
       setIsRejectModalOpen(false);
-      navigate("/verification");
+      navigate("/verification/working");
     } catch (err) {
       toast.error("An error occurred while rejecting the case.");
     }
@@ -212,10 +212,10 @@ const ViewVerification = () => {
           try {
             // Call mutation with formData and id
             await submitResponse(submitData).unwrap();
-            toast.success("Case submitted successfully.");
-            navigate("/verification/working");
             reset();
             setFileNames([]);
+            toast.success("Case submitted successfully.");
+            navigate("/verification/working");
           } catch (err) {
             console.error("Submit error:", err);
             toast.error("Failed to update verification");
