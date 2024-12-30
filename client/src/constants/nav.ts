@@ -91,6 +91,12 @@ const NavLinks: NavLink[] = [
         Roles: [Role.OF, Role.SUPERVISOR, Role.ACCOUNTS]
       },
       {
+        name: "Bulk",
+        path: "/verification/bulk",
+        Roles: [Role.CRE]
+      },
+
+      {
         name: "Create Case",
         path: "/verification/case/add",
         Roles: [Role.CRE]

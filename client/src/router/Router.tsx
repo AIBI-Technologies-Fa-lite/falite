@@ -28,6 +28,7 @@ import ViewClients from "@pages/Admin/ViewClients";
 import ViewProducts from "@pages/Admin/ViewProducts";
 
 import { Role } from "@constants/enum";
+import Bulk from "@pages/Verifications/Bulk";
 
 const adminRoutes = {
   path: "/",
@@ -138,6 +139,10 @@ const verificationRoutes = {
         {
           path: "/verification/completed",
           element: <ViewVerifications />
+        },
+        {
+          path: "/verification/bulk",
+          element: <Bulk />
         },
         {
           path: "/verification/:id",
