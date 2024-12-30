@@ -51,10 +51,10 @@ const NavLinks: NavLink[] = [
     icon: LuShield,
     hasSub: true,
     path: "/vt",
-    Roles: [Role.ADMIN],
+    Roles: [Role.ADMIN, Role.CRE],
     sub: [
       { name: "Add Verification", path: "/vt/add", Roles: [Role.ADMIN] },
-      { name: "View Verifications", path: "/vt", Roles: [Role.ADMIN] }
+      { name: "View Verifications", path: "/vt", Roles: [Role.ADMIN, Role.CRE] }
     ]
   },
   {

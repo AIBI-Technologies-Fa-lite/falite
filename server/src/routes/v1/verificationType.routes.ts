@@ -10,7 +10,7 @@ import { Role } from "@prisma/client";
 const vtRouter = Router();
 
 vtRouter.post("/", roleMiddleware([Role.ADMIN]), createVerificationType);
-vtRouter.get("/", roleMiddleware([Role.ADMIN]), getVerificationTypes);
+vtRouter.get("/", roleMiddleware([Role.ADMIN, Role.CRE]), getVerificationTypes);
 vtRouter.get("/all", getAllVerificaitonTypes);
 vtRouter.delete("/:id", roleMiddleware([Role.ADMIN]), deleteVerificationType);
 

@@ -77,7 +77,16 @@ const adminRoutes = {
         },
         { path: "/setup/product/add", element: <AddProduct /> }
       ]
-    },
+    }
+  ]
+};
+
+const vtRoutes = {
+  path: "/",
+  element: (
+    <RoleGuard allowedRoles={[Role.CRE, Role.ADMIN]} children={<Layout />} />
+  ),
+  children: [
     {
       path: "/vt",
       children: [
@@ -198,6 +207,7 @@ const router = createBrowserRouter([
         children: [{ path: "/", element: <HomeRouter /> }]
       },
       adminRoutes,
+      vtRoutes,
       creRoutes,
       verificationRoutes,
       gpsRoutes,

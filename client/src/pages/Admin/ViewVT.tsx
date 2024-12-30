@@ -11,6 +11,9 @@ import { useGetVTQuery, useDeleteVTMutation } from "@api/vtApi";
 import { toast } from "react-toastify";
 import { convertToIST } from "@utils/time";
 import Pagination from "@components/Pagination";
+import { useSelector } from "react-redux";
+import { RootState } from "src/store";
+import { Role } from "@constants/enum";
 
 const ViewVT = () => {
   const [search, setSearch] = useState<string>("");
@@ -58,7 +61,7 @@ const ViewVT = () => {
     search: debouncedSearch,
     order: sorting.length > 0 ? (sorting[0].desc ? "desc" : "asc") : undefined // Pass the sorting order
   });
-
+  const role = useSelector((state: RootState) => state.auth.user?.role);
   // Define table columns
   const columns = useMemo(
     () => [
@@ -72,17 +75,18 @@ const ViewVT = () => {
       },
       {
         header: "Actions",
-        cell: ({ row }: { row: { original: { id: number } } }) => (
-          <button
-            onClick={() => {
-              setSelectedVTId(`${row.original.id}`); // Set the selected branch ID
-              setIsModalOpen(true); // Open modal
-            }}
-            className='px-4 py-1 text-white transition duration-300 bg-red-600 rounded-md hover:bg-red-800'
-          >
-            Delete
-          </button>
-        )
+        cell: ({ row }: { row: { original: { id: number } } }) =>
+          role === Role.ADMIN ? (
+            <button
+              onClick={() => {
+                setSelectedVTId(`${row.original.id}`); // Set the selected branch ID
+                setIsModalOpen(true); // Open modal
+              }}
+              className='px-4 py-1 text-white transition duration-300 bg-red-600 rounded-md hover:bg-red-800'
+            >
+              Delete
+            </button>
+          ) : null
       }
     ],
     []
