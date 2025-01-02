@@ -59,6 +59,7 @@ export const getCounts = async (req: Request, res: Response) => {
 
     const pendingVerification = await prisma.verification.count({
       where: {
+        working: false,
         status: { notIn: [Status.REJECTED, Status.PENDING] },
         ...whereClause
       }

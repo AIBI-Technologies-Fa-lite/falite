@@ -9,7 +9,7 @@ import {
   getBillingVerifications,
   markUntracable,
   markBilling,
-  makrkWorking
+  markWorking
 } from "../../controllers/verifications/verification.controller";
 import {
   createCase,
@@ -41,7 +41,7 @@ verificationRouter.put(
   roleMiddleware([Role.SUPERVISOR, Role.CRE]),
   reopenVerification
 );
-verificationRouter.put("/mark/:id", roleMiddleware([Role.OF]), makrkWorking);
+verificationRouter.put("/mark/:id", roleMiddleware([Role.OF]), markWorking);
 verificationRouter.put("/of/:id", roleMiddleware([Role.OF]), ofResponse);
 verificationRouter.post(
   "/submit",

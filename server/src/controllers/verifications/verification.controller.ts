@@ -322,7 +322,7 @@ export const getVerificationById = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
-export const makrkWorking = async (req: Request, res: Response) => {
+export const markWorking = async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
 
   try {
