@@ -7,7 +7,7 @@ const Bulk = () => {
     const blob = new Blob(
       [
         "\uFEFF", // UTF-8 BOM
-        "casenumber,product,applicant name,clientid,verificationid,business name,address,pincode,phonenumber\n"
+        "case_number,product,applicant_name,client_name,verification_id,business_name,address,pincode,phone\n"
       ],
       { type: "text/csv;charset=utf-8;" }
     );
