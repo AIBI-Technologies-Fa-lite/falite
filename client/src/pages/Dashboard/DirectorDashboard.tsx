@@ -80,7 +80,7 @@ const DirectorDashboard = () => {
       </div>
 
       {/* Analytics Chart */}
-      <div className='bg-white p-6 rounded shadow col-span-6'>
+      <div className='bg-white p-6 rounded shadow col-span-4'>
         <div className='flex justify-between items-center mb-4'>
           <h2 className='text-lg font-bold'>Analytics</h2>
           <div className='space-x-2'>
