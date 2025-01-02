@@ -132,6 +132,13 @@ const verificationApi = authApiSlice.injectEndpoints({
         url: `/verification/mark/${id}`,
         method: "PUT"
       })
+    }),
+    bulkUpload: builder.mutation({
+      query: (formData) => ({
+        url: "/verification/bulk",
+        method: "POST",
+        body: formData
+      })
     })
   })
 });
@@ -152,5 +159,6 @@ export const {
   useMarkCompletedMutation,
   useGetBillingQuery,
   useMarkBillingMutation,
-  useMarkUtMutation
+  useMarkUtMutation,
+  useBulkUploadMutation
 } = verificationApi;

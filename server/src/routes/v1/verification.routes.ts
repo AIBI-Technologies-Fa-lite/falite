@@ -9,7 +9,8 @@ import {
   getBillingVerifications,
   markUntracable,
   markBilling,
-  markWorking
+  markWorking,
+  bulkUpload
 } from "../../controllers/verifications/verification.controller";
 import {
   createCase,
@@ -81,6 +82,12 @@ verificationRouter.put(
   "/case/complete/:id",
   roleMiddleware([Role.SUPERVISOR]),
   markCompleted
+);
+verificationRouter.post(
+  "/bulk",
+  upload.single("file"),
+  roleMiddleware([Role.CRE]),
+  bulkUpload
 );
 verificationRouter.get("/:id", getVerificationById);
 export default verificationRouter;

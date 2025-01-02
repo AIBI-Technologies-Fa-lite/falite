@@ -692,3 +692,10 @@ export const markUntracable = async (req: Request, res: Response) => {
     apiResponse.error(res);
   }
 };
+export const bulkUpload = async (req: Request, res: Response) => {
+  const file = req.file as Express.Multer.File;
+  const user = (req as CustomRequest).user;
+
+  console.log(file);
+  apiResponse.success(res, {});
+};
