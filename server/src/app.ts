@@ -42,9 +42,5 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", router);
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.log(err.stack);
-  apiResponse.error(res);
-});
 
 export default app;

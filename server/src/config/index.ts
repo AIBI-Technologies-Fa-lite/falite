@@ -11,7 +11,7 @@ export const config = {
 };
 
 const storage = new Storage({ projectId: process.env.PROJECT_ID, keyFilename: process.env.KEY_FILE });
-const bucketName = "fa_lite_storage";
+const bucketName = "fa_lite_covert";
 export const bucket = storage.bucket(bucketName);
 
 export const upload = multer({ storage: multer.memoryStorage() });
