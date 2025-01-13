@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 
 import { config } from "./config";
 
@@ -8,6 +8,8 @@ import morgan from "morgan";
 import path from "path";
 
 import router from "./routes";
+import { error } from "console";
+import { apiResponse } from "./utils/response";
 
 // Middleware to set up CORS
 const corsOptions: CorsOptions = {
@@ -40,6 +42,9 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", router);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.log(err.stack);
+  apiResponse.error(res);
+});
 
 export default app;
